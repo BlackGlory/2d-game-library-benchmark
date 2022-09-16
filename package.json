@@ -27,7 +27,6 @@
     "extra-key-state": "^0.1.1",
     "extra-rand": "^0.1.1",
     "extra-react-hooks": "^0.3.1",
-    "nanoid": "^3.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "structure-of-arrays": "^0.5.5"

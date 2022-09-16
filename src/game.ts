@@ -92,7 +92,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   , y: double
   })
 
-  const renderable = new Query(world, allOf(Position, Velocity, Size, Style))
+  const queryBox = new Query(world, allOf(Position, Velocity, Size, Style))
 
   let entities: number = 0
 
@@ -113,7 +113,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   return loop
 
   function movementSystem(deltaTime: number): void {
-    for (const entityId of renderable.findAllEntityIds()) {
+    for (const entityId of queryBox.findAllEntityIds()) {
       Position.arrays.x[entityId] += Velocity.arrays.x[entityId] * deltaTime
       Position.arrays.y[entityId] += Velocity.arrays.y[entityId] * deltaTime
     }
@@ -121,30 +121,30 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
 
   function directorSystem(deltaTime: number): void {
     const oldEntities = entities
-    for (const entityId of renderable.findAllEntityIds()) {
+    for (const entityId of queryBox.findAllEntityIds()) {
       if (
          keyStateObserver.getKeyState(Key.A) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Left) === KeyState.Down
       ) {
-        Position.arrays.x[entityId] -= 10
+        Position.arrays.x[entityId] -= 1 * deltaTime
       }
       if (
          keyStateObserver.getKeyState(Key.W) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Up) === KeyState.Down
       ) {
-        Position.arrays.y[entityId] -= 10
+        Position.arrays.y[entityId] -= 1 * deltaTime
       }
       if (
          keyStateObserver.getKeyState(Key.S) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Down) === KeyState.Down
       ) {
-        Position.arrays.y[entityId] += 10
+        Position.arrays.y[entityId] += 1 * deltaTime
       }
       if (
          keyStateObserver.getKeyState(Key.D) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Right) === KeyState.Down
       ) {
-        Position.arrays.x[entityId] += 10
+        Position.arrays.x[entityId] += 1 * deltaTime
       }
       const x = Position.arrays.x[entityId]
       const y = Position.arrays.y[entityId]
@@ -156,15 +156,14 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
         (x + width) < 0 ||
         (y + height) < 0
       ) {
-        world.removeEntityId(entityId)
-        entities--
+        removeBox(entityId)
       }
     }
 
     if (loop.getFramesOfSecond() >= GAME_FPS) {
       const removedEntities = oldEntities - entities 
       for (let i = removedEntities + 1; i--;) {
-        addEntity()
+        addBox()
       }
     }
   }
@@ -173,7 +172,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     ctx.save()
-    for (const entityId of renderable.findAllEntityIds()) {
+    for (const entityId of queryBox.findAllEntityIds()) {
       const color = Style.arrays.color[entityId]
       ctx.fillStyle = COLORS[color]
       const x = Position.arrays.x[entityId]
@@ -215,7 +214,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     }
   }
 
-  function addEntity(): void {
+  function addBox(): void {
     const entityId = world.createEntityId()
     world.addComponents(
       entityId
@@ -236,5 +235,10 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       }]
     )
     entities++
+  }
+
+  function removeBox(entityId: number): void {
+    world.removeEntityId(entityId)
+    entities--
   }
 }
