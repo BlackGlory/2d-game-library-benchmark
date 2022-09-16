@@ -29,6 +29,7 @@
     "extra-react-hooks": "^0.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "screenfull": "^6.0.2",
     "structure-of-arrays": "^0.5.5"
   },
   "devDependencies": {
