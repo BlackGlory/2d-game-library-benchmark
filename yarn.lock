@@ -2035,10 +2035,10 @@ extra-ecs@^0.2.4:
     hotypes "^0.5.0"
     iterable-operator "^1.2.1"
 
-extra-game-loop@^0.1.2:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/extra-game-loop/-/extra-game-loop-0.1.3.tgz#fadccf471905ab007678f0d1a850da23493585a0"
-  integrity sha512-I5c6n587MftZPcvoYED8KeTpP6H/mLOolXBEeJFgKXc9igw2O6vVmwtofEsCJZXzQF7czURoWlE1R4TX6xUWow==
+extra-game-loop@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/extra-game-loop/-/extra-game-loop-0.1.4.tgz#aac6016534a6f8f6d81781202f75e15742ec42a2"
+  integrity sha512-tIjXWj0e7mDvCuuRRwW5uI9bPVl0EpYDKwqzoW1J9jWBKGp5XttjAsAY8RYe78GeMbeeBPnSNX/NVXMUjkzshw==
   dependencies:
     "@blackglory/prelude" "^0.1.5"
     "@blackglory/structures" "^0.10.14"

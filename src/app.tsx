@@ -23,12 +23,10 @@ export function App() {
   }, [canvasRef.current])
 
   return (
-    <div className=''>
-      <canvas
-        onClick={onClick}
-        className='mx-auto'
-        ref={canvasRef}
-      />
-    </div>
+    <canvas
+      onClick={onClick}
+      className='mx-auto'
+      ref={canvasRef}
+    />
   )
 }

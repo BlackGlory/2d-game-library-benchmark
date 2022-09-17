@@ -23,7 +23,7 @@
     "@blackglory/structures": "^0.10.15",
     "box2d-wasm": "^7.0.0",
     "extra-ecs": "^0.2.4",
-    "extra-game-loop": "^0.1.2",
+    "extra-game-loop": "^0.1.4",
     "extra-key-state": "^0.1.1",
     "extra-rand": "^0.1.1",
     "extra-react-hooks": "^0.3.1",

@@ -20,6 +20,10 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
 
   const world = new World()
 
+  const PreviousPosition = new StructureOfArrays({
+    x: double
+  , y: double
+  })
   const Position = new StructureOfArrays({
     x: double
   , y: double
@@ -49,8 +53,8 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   , update(deltaTime: number): void {
       directorSystem(deltaTime)
     }
-  , render() {
-      renderingSystem()
+  , render(alpha: number) {
+      renderingSystem(alpha)
     }
   })
 
@@ -58,9 +62,15 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
 
   function movementSystem(deltaTime: number): void {
     for (const entityId of queryBox.findAllEntityIds()) {
+      savePreviousPosition(entityId)
       Position.arrays.x[entityId] += Velocity.arrays.x[entityId] * deltaTime
       Position.arrays.y[entityId] += Velocity.arrays.y[entityId] * deltaTime
     }
+  }
+
+  function savePreviousPosition(entityId: number): void {
+    PreviousPosition.arrays.x[entityId] = Position.arrays.x[entityId]
+    PreviousPosition.arrays.y[entityId] = Position.arrays.y[entityId]
   }
 
   function directorSystem(deltaTime: number): void {
@@ -71,24 +81,28 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
          keyStateObserver.getKeyState(Key.Left) === KeyState.Down
       ) {
         Position.arrays.x[entityId] -= 1 * deltaTime
+        savePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.W) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Up) === KeyState.Down
       ) {
         Position.arrays.y[entityId] -= 1 * deltaTime
+        savePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.S) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Down) === KeyState.Down
       ) {
         Position.arrays.y[entityId] += 1 * deltaTime
+        savePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.D) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Right) === KeyState.Down
       ) {
         Position.arrays.x[entityId] += 1 * deltaTime
+        savePreviousPosition(entityId)
       }
       const x = Position.arrays.x[entityId]
       const y = Position.arrays.y[entityId]
@@ -112,15 +126,17 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     }
   }
 
-  function renderingSystem(): void {
+  function renderingSystem(alpha: number): void {
     ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     ctx.save()
     for (const entityId of queryBox.findAllEntityIds()) {
       const color = Style.arrays.color[entityId]
       ctx.fillStyle = COLORS[color]
-      const x = Position.arrays.x[entityId]
-      const y = Position.arrays.y[entityId]
+      const x = lerp(alpha, PreviousPosition.arrays.x[entityId], Position.arrays.x[entityId])
+      const y = lerp(alpha, PreviousPosition.arrays.y[entityId], Position.arrays.y[entityId])
+      // const x = Position.arrays.x[entityId]
+      // const y = Position.arrays.y[entityId]
       const width = Size.arrays.width[entityId]
       const height = Size.arrays.height[entityId]
       ctx.fillRect(x, y, width, height)
@@ -160,12 +176,11 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
 
   function addBox(): void {
     const entityId = world.createEntityId()
+    const x = random(0, SCREEN_WIDTH)
+    const y = random(0, SCREEN_HEIGHT)
     world.addComponents(
       entityId
-    , [Position, {
-        x: random(0, SCREEN_WIDTH)
-      , y: random(0, SCREEN_HEIGHT)
-      }]
+    , [Position, { x, y }]
     , [Velocity, {
         x: random(-0.01, 0.01)
       , y: random(-0.01, 0.01)
@@ -178,6 +193,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
         color: randomInt(0, COLORS.length)
       }]
     )
+    PreviousPosition.upsert(entityId, { x, y })
     entities++
   }
 
@@ -185,4 +201,8 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     world.removeEntityId(entityId)
     entities--
   }
+}
+
+function lerp(alpha: number, previousValue: number, currentValue: number): number {
+  return previousValue + (currentValue - previousValue) * alpha
 }
