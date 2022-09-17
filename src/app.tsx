@@ -15,7 +15,6 @@ export function App() {
 
   const onClick: MouseEventHandler<HTMLCanvasElement> = useCallback(e => {
     if (e.detail % 2 === 0) {
-      console.count('double click')
       if (screenfull.isEnabled && canvasRef.current) {
         screenfull.toggle(canvasRef.current)
       }
