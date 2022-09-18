@@ -7,10 +7,12 @@ import { truncateArrayRight } from '@blackglory/structures'
 import { SyncDestructor } from 'extra-defer'
 import * as PIXI from 'pixi.js'
 import { COLORS } from './colors'
+import { lerp } from '@utils/lerp'
 
-const GAME_FPS = 60
-const SCREEN_WIDTH = 1920
-const SCREEN_HEIGHT= 1080
+const MIN_GAME_FPS = 60
+const PHYSICS_FPS = 100
+const SCREEN_WIDTH_PIXELS = 1920
+const SCREEN_HEIGHT_PIXELS= 1080
 
 export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   const fpsRecords: number[] = []
@@ -22,8 +24,8 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
 
   const renderer = new PIXI.Renderer({
     view: canvas
-  , width: SCREEN_WIDTH
-  , height: SCREEN_HEIGHT
+  , width: SCREEN_WIDTH_PIXELS
+  , height: SCREEN_HEIGHT_PIXELS
   , antialias: true
   })
   const stage = new PIXI.Container()
@@ -54,23 +56,23 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   let boxes: number = 0
 
   const loop = new GameLoop({
-    fixedDeltaTime: 1000 / GAME_FPS
-  , maximumDeltaTime: 1000 / (GAME_FPS / 2)
+    fixedDeltaTime: 1000 / PHYSICS_FPS
+  , maximumDeltaTime: 1000 / (PHYSICS_FPS / 2)
   , fixedUpdate(deltaTime: number): void {
-      movementSystem(deltaTime)
+      physicsSystem(deltaTime)
     }
   , update(deltaTime: number): void {
       directorSystem(deltaTime)
     }
   , render(alpha: number) {
-      updateStageSystem(alpha)
+      stageUpdatingSystem(alpha)
       renderingSystem()
     }
   })
 
   return loop
 
-  function movementSystem(deltaTime: number): void {
+  function physicsSystem(deltaTime: number): void {
     for (const entityId of queryBox.findAllEntityIds()) {
       updatePreviousPosition(entityId)
       Position.arrays.x[entityId] += Velocity.arrays.x[entityId] * deltaTime
@@ -124,8 +126,8 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       const width = Size.arrays.width[entityId]
       const height = Size.arrays.height[entityId]
       if (
-        x > SCREEN_WIDTH ||
-        y > SCREEN_HEIGHT ||
+        x > SCREEN_WIDTH_PIXELS ||
+        y > SCREEN_HEIGHT_PIXELS ||
         (x + width) < 0 ||
         (y + height) < 0
       ) {
@@ -133,7 +135,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       }
     }
 
-    if (loop.getFramesOfSecond() >= GAME_FPS) {
+    if (loop.getFramesOfSecond() >= MIN_GAME_FPS) {
       const removedEntities = oldEntities - boxes
       for (let i = removedEntities + 1; i--;) {
         addBox()
@@ -141,7 +143,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     }
   }
 
-  function updateStageSystem(alpha: number): void {
+  function stageUpdatingSystem(alpha: number): void {
     for (const entityId of queryBox.findAllEntityIds()) {
       const previousX = PreviousPosition.arrays.x[entityId]
       const previousY = PreviousPosition.arrays.y[entityId]
@@ -160,7 +162,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     const destructor = new SyncDestructor()
     {
       fpsRecords.push(loop.getFramesOfSecond())
-      truncateArrayRight(fpsRecords, GAME_FPS)
+      truncateArrayRight(fpsRecords, PHYSICS_FPS)
       const fps = Math.floor(fpsRecords.reduce((acc, cur) => acc + cur) / fpsRecords.length)
 
       const text = new PIXI.Text(`FPS: ${fps}`, {
@@ -190,7 +192,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       , fill: 0xFFFFFF
       })
       destructor.defer(() => text.destroy())
-      text.position.x = SCREEN_WIDTH - text.width
+      text.position.x = SCREEN_WIDTH_PIXELS - text.width
       text.position.y = 0
 
       const rect = new PIXI.Graphics()
@@ -210,8 +212,8 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   }
 
   function addBox(): void {
-    const x = random(0, SCREEN_WIDTH)
-    const y = random(0, SCREEN_HEIGHT)
+    const x = random(0, SCREEN_WIDTH_PIXELS)
+    const y = random(0, SCREEN_HEIGHT_PIXELS)
     const vx = random(-0.01, 0.01)
     const vy = random(-0.01, 0.01)
     const width = randomIntInclusive(1, 100)
@@ -250,8 +252,4 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
 
     boxes--
   }
-}
-
-function lerp(alpha: number, previousValue: number, currentValue: number): number {
-  return previousValue + (currentValue - previousValue) * alpha
 }

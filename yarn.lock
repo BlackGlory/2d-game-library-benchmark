@@ -520,10 +520,10 @@
   resolved "https://registry.yarnpkg.com/@cush/relative/-/relative-1.0.0.tgz#8cd1769bf9bde3bb27dac356b1bc94af40f6cc16"
   integrity sha512-RpfLEtTlyIxeNPGKcokS+p3BZII/Q3bYxryFRglh5H3A3T8q9fsLYm72VYAMEOOIBLEa8o93kFLiBDUWKrwXZA==
 
-"@dimforge/rapier2d@0.0.0-99cb068-20220825":
-  version "0.0.0-99cb068-20220825"
-  resolved "https://registry.yarnpkg.com/@dimforge/rapier2d/-/rapier2d-0.0.0-99cb068-20220825.tgz#b73fb1bd13914f88113546e4c5a7640573b88f33"
-  integrity sha512-93hC7k5sr8quc7xYnePtRzSUU512a/8hf+cvf2rYlzKG1X9IrZLSkytKRJrYFuolcBmprwJ3duuqpB18L9Go2g==
+"@dimforge/rapier2d-compat@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@dimforge/rapier2d-compat/-/rapier2d-compat-0.9.0.tgz#8ef3b2cf5c53439be07415c77383d27dc25b3c5d"
+  integrity sha512-JE+xXGb0X5A5KNI9+e8GVME7PQ1hUTeu18oAwn1rNJQMGIuVeGAdHltSONes/WipVBFllw1p7arG1pzLYBjlXQ==
 
 "@esbuild/linux-loong64@0.15.7":
   version "0.15.7"
@@ -544,6 +544,11 @@
     js-yaml "^4.1.0"
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
+
+"@headlessui/react@^1.7.2":
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/@headlessui/react/-/react-1.7.2.tgz#e6a6a8d38342064a53182f1eb2bf6d9c1e53ba6a"
+  integrity sha512-snLv2lxwsf2HNTOBNgHYdvoYZ3ChJE8QszPi1d/hl9js8KrFrUulTaQBfSyPbJP5BybVreWh9DxCgz9S0Z6hKQ==
 
 "@humanwhocodes/config-array@^0.10.4":
   version "0.10.4"
@@ -1512,6 +1517,11 @@ ci-info@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-2.0.0.tgz#67a9e964be31a51e15e5010d58e6f12834002f46"
   integrity sha512-5tK7EtrZ0N+OLFMthtqOj4fI2Jeb88C4CAZPu25LDVUgXJ0A3Js4PMGqrn0JU1W0Mh1/Z8wZzYPxqUrXeBboCQ==
+
+classnames@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.3.2.tgz#351d813bf0137fcc6a76a16b88208d2560a0d924"
+  integrity sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw==
 
 cliui@^7.0.2:
   version "7.0.4"
