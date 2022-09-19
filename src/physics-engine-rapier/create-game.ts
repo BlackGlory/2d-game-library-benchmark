@@ -14,7 +14,7 @@ import { lerp } from '@utils/lerp'
 import RAPIER from '@dimforge/rapier2d-compat'
 await RAPIER.init()
 
-const PHYSICS_FPS = 100
+const PHYSICS_FPS = 50
 const unitConverter = new UnitConverter(20)
 const SCREEN_WIDTH_PIXELS = 1920
 const SCREEN_HEIGHT_PIXELS= 1080
