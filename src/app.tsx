@@ -1,7 +1,8 @@
 import React from 'react'
 import * as PhysicsEngineBox2D from './physics-engine-box2d'
 import * as PhysicsEngineRapier from './physics-engine-rapier'
-import * as RenderingEngine from './rendering-engine'
+import * as RenderingEngineCanvas2D from './rendering-engine-canvas2d'
+import * as RenderingEnginePixiJS from './rendering-engine-pixi-js'
 import { Tab } from '@headlessui/react'
 import { Game } from './game'
 import classNames from 'classnames'
@@ -9,8 +10,12 @@ import classNames from 'classnames'
 export function App() {
   const tabs = [
     {
+      tabName: 'Rendering Engine Benchmark (canvas2d)'
+    , tabPanel: <Game createGame={RenderingEngineCanvas2D.createGame} />
+    }
+  , {
       tabName: 'Rendering Engine Benchmark (PixiJS)'
-    , tabPanel: <Game createGame={RenderingEngine.createGame} />
+    , tabPanel: <Game createGame={RenderingEnginePixiJS.createGame} />
     }
   , {
       tabName: 'Physcis Engine Benchmark (Rapier)'

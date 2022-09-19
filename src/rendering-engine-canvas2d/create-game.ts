@@ -4,33 +4,21 @@ import { World, Query, allOf } from 'extra-ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
 import { random, randomInt, randomIntInclusive } from 'extra-rand'
 import { truncateArrayRight } from '@blackglory/structures'
-import { SyncDestructor } from 'extra-defer'
-import * as PIXI from 'pixi.js'
 import { COLORS } from './colors'
 import { lerp } from '@utils/lerp'
 
 const MIN_GAME_FPS = 60
-const PHYSICS_FPS = 100
+const PHYSICS_FPS = 60
 const SCREEN_WIDTH_PIXELS = 1920
-const SCREEN_HEIGHT_PIXELS= 1080
+const SCREEN_HEIGHT_PIXELS = 1080
 
 export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   const fpsRecords: number[] = []
-  const entityIdToSprite = new Map<number, PIXI.Sprite>()
   const keyStateObserver = new KeyStateObserver(document.documentElement)
 
-  PIXI.settings.RESOLUTION = window.devicePixelRatio
-  PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
-
-  const renderer = new PIXI.Renderer({
-    view: canvas
-  , width: SCREEN_WIDTH_PIXELS
-  , height: SCREEN_HEIGHT_PIXELS
-  , antialias: true
-  })
-  const stage = new PIXI.Container()
-  const particleStage = new PIXI.ParticleContainer(100000)
-  stage.addChild(particleStage)
+  canvas.width = SCREEN_WIDTH_PIXELS
+  canvas.height = SCREEN_HEIGHT_PIXELS
+  const ctx = canvas.getContext('2d')!
 
   const world = new World()
 
@@ -42,6 +30,9 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     x: double
   , y: double
   })
+  const Style = new StructureOfArrays({
+    color: uint8
+  })
   const Size = new StructureOfArrays({
     width: uint8
   , height: uint8
@@ -51,7 +42,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   , y: double
   })
 
-  const queryBox = new Query(world, allOf(Position, Velocity, Size))
+  const queryBox = new Query(world, allOf(Position, Velocity, Size, Style))
 
   let boxes: number = 0
 
@@ -65,8 +56,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       directorSystem(deltaTime)
     }
   , render(alpha: number) {
-      stageUpdatingSystem(alpha)
-      renderingSystem()
+      renderingSystem(alpha)
     }
   })
 
@@ -120,7 +110,6 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
         Position.arrays.x[entityId] += 1 * deltaTime
         updatePreviousPosition(entityId)
       }
-
       const x = Position.arrays.x[entityId]
       const y = Position.arrays.y[entityId]
       const width = Size.arrays.width[entityId]
@@ -143,112 +132,87 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     }
   }
 
-  function stageUpdatingSystem(alpha: number): void {
+  function renderingSystem(alpha: number): void {
+    ctx.save()
+    ctx.fillStyle = 'black'
+    ctx.fillRect(0, 0, SCREEN_WIDTH_PIXELS, SCREEN_HEIGHT_PIXELS)
+    ctx.restore()
+
+    ctx.save()
     for (const entityId of queryBox.findAllEntityIds()) {
+      const color = Style.arrays.color[entityId]
+      ctx.fillStyle = COLORS[color]
       const previousX = PreviousPosition.arrays.x[entityId]
       const previousY = PreviousPosition.arrays.y[entityId]
       const currentX = Position.arrays.x[entityId]
       const currentY = Position.arrays.y[entityId]
-
-      const rect = entityIdToSprite.get(entityId)!
-      rect.position.set(
-        lerp(alpha, previousX, currentX)
-      , lerp(alpha, previousY, currentY)
-      )
+      const x = lerp(alpha, previousX, currentX)
+      const y = lerp(alpha, previousY, currentY)
+      const width = Size.arrays.width[entityId]
+      const height = Size.arrays.height[entityId]
+      ctx.fillRect(x, y, width, height)
     }
-  }
+    ctx.restore()
 
-  function renderingSystem(): void {
-    const destructor = new SyncDestructor()
     {
       fpsRecords.push(loop.getFramesOfSecond())
       truncateArrayRight(fpsRecords, PHYSICS_FPS)
       const fps = Math.floor(fpsRecords.reduce((acc, cur) => acc + cur) / fpsRecords.length)
-
-      const text = new PIXI.Text(`FPS: ${fps}`, {
-        fontFamily: 'sans'
-      , fontSize: 48
-      , fill: 0xFFFFFF
-      })
-      destructor.defer(() => text.destroy())
-      text.position.x = 0
-      text.position.y = 0
-
-      const rect = new PIXI.Graphics()
-      destructor.defer(() => rect.destroy())
-      rect.beginFill(0x000000)
-      rect.drawRect(0, 0, text.width, text.height)
-      rect.position.x = text.position.x
-      rect.position.y = text.position.y
-
-      stage.addChild(rect, text)
-      destructor.defer(() => stage.removeChild(rect, text))
+      const text = `FPS: ${fps}`
+      ctx.save()
+      ctx.font = '48px sans'
+      ctx.textBaseline = 'top'
+      ctx.fillStyle = 'black'
+      const width = ctx.measureText(text).width
+      ctx.fillRect(0, 0, width, 48)
+      ctx.fillStyle = 'white'
+      ctx.fillText(text, 0, 0)
+      ctx.restore()
     }
 
     {
-      const text = new PIXI.Text(`Boxes: ${boxes}`, {
-        fontFamily: 'sans'
-      , fontSize: 48
-      , fill: 0xFFFFFF
-      })
-      destructor.defer(() => text.destroy())
-      text.position.x = SCREEN_WIDTH_PIXELS - text.width
-      text.position.y = 0
-
-      const rect = new PIXI.Graphics()
-      destructor.defer(() => rect.destroy())
-      rect.beginFill(0x000000)
-      rect.drawRect(0, 0, text.width, text.height)
-      rect.position.x = text.position.x
-      rect.position.y = text.position.y
-
-      stage.addChild(rect, text)
-      destructor.defer(() => stage.removeChild(rect, text))
+      const text = `Boxes: ${boxes}`
+      ctx.save()
+      ctx.font = '48px sans'
+      ctx.textBaseline = 'top'
+      ctx.fillStyle = 'black'
+      const width = ctx.measureText(text).width
+      const x = SCREEN_WIDTH_PIXELS - width
+      ctx.fillRect(x, 0, width, 48)
+      ctx.fillStyle = 'white'
+      ctx.fillText(text, x, 0)
+      ctx.restore()
     }
-
-    renderer.render(stage)
-
-    destructor.execute()
   }
 
   function addBox(): void {
     const x = random(0, SCREEN_WIDTH_PIXELS)
     const y = random(0, SCREEN_HEIGHT_PIXELS)
-    const vx = random(-0.01, 0.01)
-    const vy = random(-0.01, 0.01)
-    const width = randomIntInclusive(1, 100)
-    const height = randomIntInclusive(1, 100)
-    const colorIndex = randomInt(0, COLORS.length)
 
     const entityId = world.createEntityId()
     world.addComponents(
       entityId
     , [Position, { x, y }]
-    , [Velocity, { x: vx, y: vy }]
-    , [Size, { width, height }]
+    , [Velocity, {
+        x: random(-0.01, 0.01)
+      , y: random(-0.01, 0.01)
+      }]
+    , [Size, {
+        width: randomIntInclusive(1, 100)
+      , height: randomIntInclusive(1, 100)
+      }]
+    , [Style, {
+        color: randomInt(0, COLORS.length)
+      }]
     )
 
-    const rect = new PIXI.Sprite(PIXI.Texture.WHITE)
-    rect.x = 0
-    rect.y = 0
-    rect.width = width
-    rect.height = height
-    rect.tint = COLORS[colorIndex]
-
     PreviousPosition.upsert(entityId, { x, y })
-
-    particleStage.addChild(rect)
-    entityIdToSprite.set(entityId, rect)
 
     boxes++
   }
 
   function removeBox(entityId: number): void {
-    const rect = entityIdToSprite.get(entityId)!
-    rect.destroy()
-    particleStage.removeChild(rect)
     world.removeEntityId(entityId)
-    entityIdToSprite.delete(entityId)
 
     boxes--
   }
