@@ -10,7 +10,7 @@ import classNames from 'classnames'
 export function App() {
   const tabs = [
     {
-      tabName: 'Rendering Engine Benchmark (canvas2d)'
+      tabName: 'Rendering Engine Benchmark (Canvas2D)'
     , tabPanel: <Game createGame={RenderingEngineCanvas2D.createGame} />
     }
   , {
