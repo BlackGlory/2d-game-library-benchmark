@@ -6,7 +6,8 @@ import topLevelAwait from 'vite-plugin-top-level-await'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
+  base: '2d-game-libraries-benchmark'
+, plugins: [
     react()
   , tsconfigPaths()
   , wasm()

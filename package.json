@@ -10,7 +10,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "release": "standard-version"
+    "release": "standard-version",
+    "deploy": "./deploy.sh"
   },
   "husky": {
     "hooks": {
