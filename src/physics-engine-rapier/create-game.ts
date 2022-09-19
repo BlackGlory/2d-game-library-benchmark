@@ -167,9 +167,10 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     {
       fpsRecords.push(loop.getFramesOfSecond())
       truncateArrayRight(fpsRecords, PHYSICS_FPS)
-      const fps = Math.floor(
-        fpsRecords.reduce((acc, cur) => acc + cur) / fpsRecords.length
-      )
+      const fps =
+        fpsRecords.length > 1
+        ? Math.floor(fpsRecords.reduce((acc, cur) => acc + cur) / fpsRecords.length)
+        : fpsRecords[0]
 
       const text = new PIXI.Text(`FPS: ${fps}`, {
         fontFamily: 'sans'
