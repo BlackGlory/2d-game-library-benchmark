@@ -18,11 +18,11 @@ export function App() {
     , tabPanel: <Game createGame={RenderingEnginePixiJS.createGame} />
     }
   , {
-      tabName: 'Physcis Engine Benchmark (Rapier)'
+      tabName: 'Physics Engine Benchmark (Rapier)'
     , tabPanel: <Game createGame={PhysicsEngineRapier.createGame} />
     }
   , {
-      tabName: 'Physcis Engine Benchmark (Box2D)'
+      tabName: 'Physics Engine Benchmark (Box2D)'
     , tabPanel: <Game createGame={PhysicsEngineBox2D.createGame} />
     }
   ]
