@@ -1,4 +1,4 @@
-import { GameLoop } from 'extra-game-loop'
+import { GameLoop, Mode } from 'extra-game-loop'
 import { StructureOfArrays, double, uint8 } from 'structure-of-arrays'
 import { World, Query, allOf } from 'extra-ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
@@ -8,7 +8,7 @@ import { COLORS } from './colors'
 import { lerp } from '@utils/lerp'
 
 const MIN_GAME_FPS = 60
-const PHYSICS_FPS = 60
+const PHYSICS_FPS = 50
 const SCREEN_WIDTH_PIXELS = 1920
 const SCREEN_HEIGHT_PIXELS = 1080
 
@@ -47,7 +47,8 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   let boxes: number = 0
 
   const loop = new GameLoop({
-    fixedDeltaTime: 1000 / PHYSICS_FPS
+    mode: Mode.UpdateFirst
+  , fixedDeltaTime: 1000 / PHYSICS_FPS
   , maximumDeltaTime: 1000 / (PHYSICS_FPS / 2)
   , fixedUpdate(deltaTime: number): void {
       physicsSystem(deltaTime)
