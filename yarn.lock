@@ -2385,10 +2385,10 @@ extra-ecs@^0.2.11:
     iterable-operator "^1.2.1"
     justypes "^3.0.0"
 
-extra-game-loop@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/extra-game-loop/-/extra-game-loop-0.2.0.tgz#5838684d0a81b276ce758120fd87acd7f666aca3"
-  integrity sha512-HXL5HF62fd/7APw3xTMqkqA9+OR9S9emb+SvGN99SDuAiVh4NNuybnE8hrp9Kkgl62zwUls1I1KNfPR+v8e5cQ==
+extra-game-loop@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/extra-game-loop/-/extra-game-loop-0.3.0.tgz#b2c204d60abf2e910812f59d40b2e1971a0cd142"
+  integrity sha512-yFSWpQqLDhr26PW9b/t9OD9Cjwbk1a1JeFSQQAirbYHVgbY0Yt6WoLtBeDfhOyjKcZ824cKFp8NWIBQgYUJdyw==
   dependencies:
     "@blackglory/prelude" "^0.1.5"
     "@blackglory/structures" "^0.10.22"

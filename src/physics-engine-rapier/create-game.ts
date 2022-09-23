@@ -1,4 +1,4 @@
-import { GameLoop, Mode } from 'extra-game-loop'
+import { GameLoop } from 'extra-game-loop'
 import { StructureOfArrays, double, uint8 } from 'structure-of-arrays'
 import { World, Query, allOf } from 'extra-ecs'
 import { random, randomInt } from 'extra-rand'
@@ -108,13 +108,15 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   }
   
   const loop = new GameLoop({
-    mode: Mode.UpdateFirst
-  , fixedDeltaTime: 1000 / PHYSICS_FPS
+    fixedDeltaTime: 1000 / PHYSICS_FPS
   , maximumDeltaTime: 1000 / (PHYSICS_FPS / 2)
+  , update(deltaTime: number): void {
+      pass()
+    }
   , fixedUpdate(deltaTime: number): void {
       physicsSystem()
     }
-  , update(deltaTime: number): void {
+  , lateUpdate(deltaTime: number): void {
       pass()
     }
   , render(alpha: number) {

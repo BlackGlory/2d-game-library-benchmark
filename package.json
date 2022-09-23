@@ -29,7 +29,7 @@
     "classnames": "^2.3.2",
     "extra-defer": "^0.2.5",
     "extra-ecs": "^0.2.11",
-    "extra-game-loop": "^0.2.0",
+    "extra-game-loop": "^0.3.0",
     "extra-key-state": "^0.1.1",
     "extra-rand": "^0.1.1",
     "extra-react-hooks": "^0.3.1",

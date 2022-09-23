@@ -1,4 +1,4 @@
-import { GameLoop, Mode } from 'extra-game-loop'
+import { GameLoop } from 'extra-game-loop'
 import { StructureOfArrays, double, uint8 } from 'structure-of-arrays'
 import { World, Query, allOf } from 'extra-ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
@@ -6,6 +6,7 @@ import { random, randomInt, randomIntInclusive } from 'extra-rand'
 import { truncateArrayRight } from '@blackglory/structures'
 import { SyncDestructor } from 'extra-defer'
 import * as PIXI from 'pixi.js'
+import { pass } from '@blackglory/prelude'
 import { COLORS } from './colors'
 import { lerp } from '@utils/lerp'
 
@@ -56,14 +57,16 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   let boxes: number = 0
 
   const loop = new GameLoop({
-    mode: Mode.UpdateFirst
-  , fixedDeltaTime: 1000 / PHYSICS_FPS
+    fixedDeltaTime: 1000 / PHYSICS_FPS
   , maximumDeltaTime: 1000 / (PHYSICS_FPS / 2)
+  , update(deltaTime: number): void {
+      directorSystem(deltaTime)
+    }
   , fixedUpdate(deltaTime: number): void {
       physicsSystem(deltaTime)
     }
-  , update(deltaTime: number): void {
-      directorSystem(deltaTime)
+  , lateUpdate(deltaTime: number): void {
+      pass()
     }
   , render(alpha: number) {
       stageUpdatingSystem(alpha)
