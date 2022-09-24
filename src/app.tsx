@@ -12,11 +12,11 @@ import classNames from 'classnames'
 export function App() {
   const tabs = [
     {
-      tabName: 'ECS framework: extra-ecs'
+      tabName: 'ECS Framework: extra-ecs'
     , tabPanel: <Game createGame={ECSFrameworkExtraECS.createGame} />
     }
   , {
-      tabName: 'ECS framework: bitecs (buggy)'
+      tabName: 'ECS Framework: bitecs (buggy)'
     , tabPanel: <Game createGame={ECSFrameworkBitECS.createGame} />
     }
   , {
