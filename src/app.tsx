@@ -16,7 +16,7 @@ export function App() {
     , tabPanel: <Game createGame={ECSFrameworkExtraECS.createGame} />
     }
   , {
-      tabName: 'ECS Framework: bitecs (buggy)'
+      tabName: 'ECS Framework: BitECS (buggy)'
     , tabPanel: <Game createGame={ECSFrameworkBitECS.createGame} />
     }
   , {
