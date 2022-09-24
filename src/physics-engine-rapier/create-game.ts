@@ -144,10 +144,8 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   function updatePreviousPosition(entityId: number): void {
     const previousX = Position.arrays.x[entityId]
     const previousY = Position.arrays.y[entityId]
-    PreviousPosition.upsert(entityId, {
-      x: previousX
-    , y: previousY
-    })
+    PreviousPosition.arrays.x[entityId] = previousX
+    PreviousPosition.arrays.y[entityId] = previousY
   }
 
   function stageUpdatingSystem(alpha: number): void {
@@ -229,6 +227,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       entityId
     , [Position, { x, y }]
     , [Size, { width, height }]
+    , [PreviousPosition, { x, y }]
     )
 
     const rect = new PIXI.Sprite(PIXI.Texture.WHITE)
@@ -237,8 +236,6 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     rect.width = unitConverter.meterToPixel(width)
     rect.height = unitConverter.meterToPixel(height)
     rect.tint = COLORS[colorIndex]
-
-    PreviousPosition.upsert(entityId, { x, y })
 
     const { rigidBody, collider } = createNonRotatableCuboid(
       physicsWorld

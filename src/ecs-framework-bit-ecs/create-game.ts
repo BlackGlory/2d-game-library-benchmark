@@ -1,6 +1,13 @@
 import { GameLoop } from 'extra-game-loop'
-import { StructureOfArrays, double, uint8 } from 'structure-of-arrays'
-import { World, Query, allOf } from 'extra-ecs'
+import {
+  createWorld
+, defineComponent
+, defineQuery
+, addEntity
+, addComponent
+, removeEntity
+, Types
+} from 'bitecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
 import { random, randomInt, randomIntInclusive } from 'extra-rand'
 import { truncateArrayRight } from '@blackglory/structures'
@@ -21,29 +28,29 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   canvas.height = SCREEN_HEIGHT_PIXELS
   const ctx = canvas.getContext('2d')!
 
-  const world = new World()
+  const world = createWorld()
 
-  const PreviousPosition = new StructureOfArrays({
-    x: double
-  , y: double
+  const PreviousPosition = defineComponent({
+    x: Types.f64
+  , y: Types.f64
   })
-  const Position = new StructureOfArrays({
-    x: double
-  , y: double
+  const Position = defineComponent({
+    x: Types.f64
+  , y: Types.f64
   })
-  const Style = new StructureOfArrays({
-    color: uint8
+  const Style = defineComponent({
+    color: Types.ui8
   })
-  const Size = new StructureOfArrays({
-    width: uint8
-  , height: uint8
+  const Size = defineComponent({
+    width: Types.ui8
+  , height: Types.ui8
   })
-  const Velocity = new StructureOfArrays({
-    x: double
-  , y: double
+  const Velocity = defineComponent({
+    x: Types.f64
+  , y: Types.f64
   })
 
-  const queryBox = new Query(world, allOf(Position, Velocity, Size, Style))
+  const queryBox = defineQuery([Position, Velocity, Size, Style])
 
   let boxes: number = 0
 
@@ -67,55 +74,55 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   return loop
 
   function physicsSystem(deltaTime: number): void {
-    for (const entityId of queryBox.findAllEntityIds()) {
+    for (const entityId of queryBox(world)) {
       updatePreviousPosition(entityId)
-      Position.arrays.x[entityId] += Velocity.arrays.x[entityId] * deltaTime
-      Position.arrays.y[entityId] += Velocity.arrays.y[entityId] * deltaTime
+      Position.x[entityId] += Velocity.x[entityId] * deltaTime
+      Position.y[entityId] += Velocity.y[entityId] * deltaTime
     }
   }
 
   function updatePreviousPosition(entityId: number): void {
-    const previousX = Position.arrays.x[entityId]
-    const previousY = Position.arrays.y[entityId]
-    PreviousPosition.arrays.x[entityId] = previousX
-    PreviousPosition.arrays.y[entityId] = previousY
+    const previousX = Position.x[entityId]
+    const previousY = Position.y[entityId]
+    PreviousPosition.x[entityId] = previousX
+    PreviousPosition.y[entityId] = previousY
   }
 
   function directorSystem(deltaTime: number): void {
     const oldEntities = boxes
-    for (const entityId of queryBox.findAllEntityIds()) {
+    for (const entityId of queryBox(world)) {
       if (
          keyStateObserver.getKeyState(Key.A) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Left) === KeyState.Down
       ) {
-        Position.arrays.x[entityId] -= 1 * deltaTime
+        Position.x[entityId] -= 1 * deltaTime
         updatePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.W) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Up) === KeyState.Down
       ) {
-        Position.arrays.y[entityId] -= 1 * deltaTime
+        Position.y[entityId] -= 1 * deltaTime
         updatePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.S) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Down) === KeyState.Down
       ) {
-        Position.arrays.y[entityId] += 1 * deltaTime
+        Position.y[entityId] += 1 * deltaTime
         updatePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.D) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Right) === KeyState.Down
       ) {
-        Position.arrays.x[entityId] += 1 * deltaTime
+        Position.x[entityId] += 1 * deltaTime
         updatePreviousPosition(entityId)
       }
-      const x = Position.arrays.x[entityId]
-      const y = Position.arrays.y[entityId]
-      const width = Size.arrays.width[entityId]
-      const height = Size.arrays.height[entityId]
+      const x = Position.x[entityId]
+      const y = Position.y[entityId]
+      const width = Size.width[entityId]
+      const height = Size.height[entityId]
       if (
         x > SCREEN_WIDTH_PIXELS ||
         y > SCREEN_HEIGHT_PIXELS ||
@@ -141,17 +148,17 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     ctx.restore()
 
     ctx.save()
-    for (const entityId of queryBox.findAllEntityIds()) {
-      const color = Style.arrays.color[entityId]
+    for (const entityId of queryBox(world)) {
+      const color = Style.color[entityId]
       ctx.fillStyle = COLORS[color]
-      const previousX = PreviousPosition.arrays.x[entityId]
-      const previousY = PreviousPosition.arrays.y[entityId]
-      const currentX = Position.arrays.x[entityId]
-      const currentY = Position.arrays.y[entityId]
+      const previousX = PreviousPosition.x[entityId]
+      const previousY = PreviousPosition.y[entityId]
+      const currentX = Position.x[entityId]
+      const currentY = Position.y[entityId]
       const x = lerp(alpha, previousX, currentX)
       const y = lerp(alpha, previousY, currentY)
-      const width = Size.arrays.width[entityId]
-      const height = Size.arrays.height[entityId]
+      const width = Size.width[entityId]
+      const height = Size.height[entityId]
       ctx.fillRect(x, y, width, height)
     }
     ctx.restore()
@@ -191,29 +198,32 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     const x = random(0, SCREEN_WIDTH_PIXELS)
     const y = random(0, SCREEN_HEIGHT_PIXELS)
 
-    const entityId = world.createEntityId()
-    world.addComponents(
-      entityId
-    , [Position, { x, y }]
-    , [Velocity, {
-        x: random(-0.01, 0.01)
-      , y: random(-0.01, 0.01)
-      }]
-    , [Size, {
-        width: randomIntInclusive(1, 100)
-      , height: randomIntInclusive(1, 100)
-      }]
-    , [Style, {
-        color: randomInt(0, COLORS.length)
-      }]
-    , [PreviousPosition, { x, y }]
-    )
+    const entityId = addEntity(world)
+
+    addComponent(world, Position, entityId)
+    Position.x[entityId] = x
+    Position.y[entityId] = y
+    
+    addComponent(world, Velocity, entityId)
+    Velocity.x[entityId] = random(-0.01, 0.01)
+    Velocity.y[entityId] = random(-0.01, 0.01)
+
+    addComponent(world, Size, entityId)
+    Size.width[entityId] = randomIntInclusive(1, 100)
+    Size.height[entityId] = randomIntInclusive(1, 100)
+
+    addComponent(world, Style, entityId)
+    Style.color[entityId] = randomInt(0, COLORS.length)
+
+    addComponent(world, PreviousPosition, entityId)
+    PreviousPosition.x[entityId] = x
+    PreviousPosition.y[entityId] = y
 
     boxes++
   }
 
   function removeBox(entityId: number): void {
-    world.removeEntityId(entityId)
+    removeEntity(world, entityId)
 
     boxes--
   }

@@ -1,4 +1,6 @@
 import React from 'react'
+import * as ECSFrameworkExtraECS from './ecs-framework-extra-ecs'
+import * as ECSFrameworkBitECS from './ecs-framework-bit-ecs'
 import * as PhysicsEngineBox2D from './physics-engine-box2d'
 import * as PhysicsEngineRapier from './physics-engine-rapier'
 import * as RenderingEngineCanvas2D from './rendering-engine-canvas2d'
@@ -10,19 +12,27 @@ import classNames from 'classnames'
 export function App() {
   const tabs = [
     {
-      tabName: 'Rendering Engine Benchmark (Canvas2D)'
+      tabName: 'ECS framework: extra-ecs'
+    , tabPanel: <Game createGame={ECSFrameworkExtraECS.createGame} />
+    }
+  , {
+      tabName: 'ECS framework: bitecs (buggy)'
+    , tabPanel: <Game createGame={ECSFrameworkBitECS.createGame} />
+    }
+  , {
+      tabName: 'Rendering Engine: Canvas2D'
     , tabPanel: <Game createGame={RenderingEngineCanvas2D.createGame} />
     }
   , {
-      tabName: 'Rendering Engine Benchmark (PixiJS)'
+      tabName: 'Rendering Engine: PixiJS'
     , tabPanel: <Game createGame={RenderingEnginePixiJS.createGame} />
     }
   , {
-      tabName: 'Physics Engine Benchmark (Rapier)'
+      tabName: 'Physics Engine: Rapier'
     , tabPanel: <Game createGame={PhysicsEngineRapier.createGame} />
     }
   , {
-      tabName: 'Physics Engine Benchmark (Box2D)'
+      tabName: 'Physics Engine: Box2D'
     , tabPanel: <Game createGame={PhysicsEngineBox2D.createGame} />
     }
   ]
