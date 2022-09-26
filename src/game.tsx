@@ -28,6 +28,7 @@ export function Game({ createGame }: IGameProps) {
   return (
     <canvas
       ref={canvasRef}
+      tabIndex={0} // 允许canvas获得焦点, 从而能够收到键盘事件
       onClick={onClick}
     />
   )
