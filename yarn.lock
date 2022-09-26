@@ -2356,10 +2356,10 @@ extra-json-stable-stringify@^0.1.1:
   dependencies:
     fast-stable-stringify "^1.0.0"
 
-extra-key-state@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/extra-key-state/-/extra-key-state-0.1.1.tgz#1be646b1443e6302f83456127d301a29708392cb"
-  integrity sha512-gQD+qvrxSkS4PNAaRbdbJmWfR8uoOJUehKW+5cf7Jd4/6sXzevcNZTYk1gJVQgfdCD6fQCQAwtnyhyvo5+Y2hw==
+extra-key-state@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/extra-key-state/-/extra-key-state-0.1.2.tgz#4e8bb7f5b1633d8523825968cb4b11377c637183"
+  integrity sha512-dU2PsWo8w2QqEYZWMgtE74FlD3f+j0qTityrYDqERW2HmDK90WWRiJBdCstES/zP8nqRRtTDiLwimdVfoEpIgw==
   dependencies:
     "@blackglory/prelude" "^0.1.4"
 
