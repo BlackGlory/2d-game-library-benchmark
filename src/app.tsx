@@ -1,6 +1,7 @@
 import React from 'react'
 import * as ECSFrameworkExtraECS from './ecs-framework-extra-ecs'
 import * as ECSFrameworkBitECS from './ecs-framework-bit-ecs'
+import * as ECSFrameworkThingECS from './ecs-framework-thing-ecs'
 import * as PhysicsEngineBox2D from './physics-engine-box2d'
 import * as PhysicsEngineRapier from './physics-engine-rapier'
 import * as RenderingEngineCanvas2D from './rendering-engine-canvas2d'
@@ -18,6 +19,10 @@ export function App() {
   , {
       tabName: 'ECS Framework: BitECS (buggy)'
     , tabPanel: <Game createGame={ECSFrameworkBitECS.createGame} />
+    }
+  , {
+      tabName: 'ECS Framework: @thi.ng/ecs'
+    , tabPanel: <Game createGame={ECSFrameworkThingECS.createGame} />
     }
   , {
       tabName: 'Rendering Engine: Canvas2D'
