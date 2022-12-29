@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@blackglory/prelude": "^0.2.0",
-    "@blackglory/structures": "^0.11.8",
+    "@blackglory/structures": "^0.12.2",
     "@dimforge/rapier2d-compat": "^0.10.0",
     "@headlessui/react": "^1.7.7",
     "@thi.ng/ecs": "^0.7.35",
@@ -30,7 +30,7 @@
     "box2d-wasm": "^7.0.0",
     "classnames": "^2.3.2",
     "extra-defer": "^0.2.7",
-    "extra-ecs": "^0.4.0",
+    "extra-ecs": "^0.4.2",
     "extra-game-loop": "^0.3.2",
     "extra-key-state": "^0.1.2",
     "extra-rand": "^0.1.1",
@@ -39,7 +39,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "screenfull": "^6.0.2",
-    "structure-of-arrays": "^0.5.12"
+    "structure-of-arrays": "^0.6.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.3.0",

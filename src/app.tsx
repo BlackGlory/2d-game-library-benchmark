@@ -1,5 +1,6 @@
 import React from 'react'
-import * as ECSFrameworkExtraECS from './ecs-framework-extra-ecs'
+import * as ECSFrameworkExtraECSStructureOfArrays from './ecs-framework-extra-ecs-structure-of-arrays'
+import * as ECSFrameworkExtraECSStructureOfSparseMaps from './ecs-framework-extra-ecs-structure-of-sparsemaps'
 import * as ECSFrameworkBitECS from './ecs-framework-bit-ecs'
 import * as ECSFrameworkThingECS from './ecs-framework-thing-ecs'
 import * as PhysicsEngineBox2D from './physics-engine-box2d'
@@ -13,8 +14,12 @@ import classNames from 'classnames'
 export function App() {
   const tabs = [
     {
-      tabName: 'ECS Framework: extra-ecs'
-    , tabPanel: <Game createGame={ECSFrameworkExtraECS.createGame} />
+      tabName: 'ECS Framework: extra-ecs (StructureOfArrays)'
+    , tabPanel: <Game createGame={ECSFrameworkExtraECSStructureOfArrays.createGame} />
+    }
+  , {
+      tabName: 'ECS Framework: extra-ecs (StructureOfSparseMaps)'
+    , tabPanel: <Game createGame={ECSFrameworkExtraECSStructureOfSparseMaps.createGame} />
     }
   , {
       tabName: 'ECS Framework: BitECS (buggy)'
