@@ -1,5 +1,5 @@
 import { GameLoop } from 'extra-game-loop'
-import { StructureOfArrays, double, uint8 } from 'structure-of-arrays'
+import { StructureOfArrays, float64, uint8 } from 'structure-of-arrays'
 import { World, Query, allOf } from 'extra-ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
 import { random, randomInt, randomIntInclusive } from 'extra-rand'
@@ -36,20 +36,20 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   const world = new World()
 
   const PreviousPosition = new StructureOfArrays({
-    x: double
-  , y: double
+    x: float64
+  , y: float64
   })
   const Position = new StructureOfArrays({
-    x: double
-  , y: double
+    x: float64
+  , y: float64
   })
   const Size = new StructureOfArrays({
     width: uint8
   , height: uint8
   })
   const Velocity = new StructureOfArrays({
-    x: double
-  , y: double
+    x: float64
+  , y: float64
   })
 
   const queryBox = new Query(world, allOf(Position, Velocity, Size))
