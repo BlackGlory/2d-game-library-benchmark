@@ -7,7 +7,6 @@ import * as PhysicsEngineBox2D from './physics-engine-box2d'
 import * as PhysicsEngineRapier from './physics-engine-rapier'
 import * as RenderingEngineCanvas2D from './rendering-engine-canvas2d'
 import * as RenderingEnginePixiJS from './rendering-engine-pixi-js'
-import * as RenderingEngineCanvasKit from './rendering-engine-canvaskit'
 import { Tab } from '@headlessui/react'
 import { Game } from './game'
 import classNames from 'classnames'
@@ -37,10 +36,6 @@ export function App() {
   , {
       tabName: 'Rendering Engine: PixiJS'
     , tabPanel: <Game createGame={RenderingEnginePixiJS.createGame} />
-    }
-  , {
-      tabName: 'Rendering Engine: CanvasKit'
-    , tabPanel: <Game createGame={RenderingEngineCanvasKit.createGame} />
     }
   , {
       tabName: 'Physics Engine: Rapier'
