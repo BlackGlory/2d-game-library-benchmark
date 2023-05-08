@@ -23,7 +23,7 @@
   "dependencies": {
     "@blackglory/prelude": "^0.3.2",
     "@blackglory/structures": "^0.13.3",
-    "@dimforge/rapier2d-compat": "^0.11.2",
+    "@dimforge/rapier2d": "^0.11.2",
     "@headlessui/react": "^1.7.13",
     "@thi.ng/ecs": "^0.7.47",
     "bitecs": "^0.3.38",

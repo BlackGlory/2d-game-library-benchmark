@@ -9,10 +9,7 @@ import * as PIXI from 'pixi.js'
 import { COLORS } from './colors'
 import { UnitConverter } from '@utils/unit-converter'
 import { lerp } from '@utils/lerp'
-
-// rapier2d的WASM不受Vite支持, 等待修复此问题的`@dimforge/rapier2d@0.9.1`发布
-import RAPIER from '@dimforge/rapier2d-compat'
-await RAPIER.init()
+import RAPIER from '@dimforge/rapier2d'
 
 const PHYSICS_FPS = 50
 const unitConverter = new UnitConverter(20)
