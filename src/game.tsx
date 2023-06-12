@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, MouseEventHandler } from 'react'
+import { useRef, useEffect, useCallback, MouseEventHandler } from 'react'
 import screenfull from 'screenfull'
 import { GameLoop } from 'extra-game-loop'
 

@@ -1,4 +1,3 @@
-import React from 'react'
 import * as ECSFrameworkExtraECSStructureOfArrays from './ecs-framework-extra-ecs-structure-of-arrays'
 import * as ECSFrameworkExtraECSStructureOfSparseMaps from './ecs-framework-extra-ecs-structure-of-sparsemaps'
 import * as ECSFrameworkBitECS from './ecs-framework-bit-ecs'
