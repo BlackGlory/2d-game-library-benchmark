@@ -8,7 +8,7 @@ import * as RenderingEngineCanvas2DShape from './rendering-engines/canvas2d/shap
 import * as RenderingEnginePixiJSShape from './rendering-engines/pixi-js/shape'
 import * as RenderingEngineCanvas2DImage from './rendering-engines/canvas2d/image'
 import * as RenderingEnginePixiJSImage from './rendering-engines/pixi-js/image'
-import { Tab } from '@headlessui/react'
+import { TabGroup, TabList, TabPanels, TabPanel, Tab } from '@headlessui/react'
 import { Game } from './game'
 import classNames from 'classnames'
 
@@ -58,8 +58,8 @@ export function App() {
 
   return (
     <div className='w-[1920px] mx-auto my-2'>
-      <Tab.Group>
-        <Tab.List className='flex my-2 space-x-2'>
+      <TabGroup>
+        <TabList className='flex my-2 space-x-2'>
           {tabs.map(({ tabName }, index) => (
             <Tab
               key={index}
@@ -69,13 +69,13 @@ export function App() {
               )}
             >{tabName}</Tab>
           ))}
-        </Tab.List>
-        <Tab.Panels>
+        </TabList>
+        <TabPanels>
           {tabs.map(({ tabPanel }, index) => (
-            <Tab.Panel key={index}>{tabPanel}</Tab.Panel>
+            <TabPanel key={index}>{tabPanel}</TabPanel>
           ))}
-        </Tab.Panels>
-      </Tab.Group>
+        </TabPanels>
+      </TabGroup>
     </div>
   )
 }
