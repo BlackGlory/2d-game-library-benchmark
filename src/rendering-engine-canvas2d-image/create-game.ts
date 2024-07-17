@@ -15,6 +15,9 @@ const SCREEN_WIDTH_PIXELS = 1920
 const SCREEN_HEIGHT_PIXELS = 1080
 
 export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<number>> {
+  const fpsRecords: number[] = []
+  const keyStateObserver = new KeyStateObserver(canvas)
+
   const tiles = await go(async () => {
     const image = await loadImage(items)
     const tileSize = 16
@@ -28,9 +31,6 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
 
     return Promise.all(promises)
   })
-
-  const fpsRecords: number[] = []
-  const keyStateObserver = new KeyStateObserver(canvas)
 
   canvas.width = SCREEN_WIDTH_PIXELS
   canvas.height = SCREEN_HEIGHT_PIXELS

@@ -26,7 +26,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   const entityIdToBody = new Map<number, Box2D.b2Body>()
 
   PIXI.settings.RESOLUTION = window.devicePixelRatio
-  PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
+  PIXI.BaseTexture.defaultOptions.scaleMode = PIXI.SCALE_MODES.NEAREST
 
   const renderer = new PIXI.Renderer({
     view: canvas

@@ -16,6 +16,13 @@ const SCREEN_WIDTH_PIXELS = 1920
 const SCREEN_HEIGHT_PIXELS = 1080
 
 export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<number>> {
+  const fpsRecords: number[] = []
+  const entityIdToSprite = new Map<number, PIXI.Sprite>()
+  const keyStateObserver = new KeyStateObserver(canvas)
+
+  PIXI.settings.RESOLUTION = window.devicePixelRatio
+  PIXI.BaseTexture.defaultOptions.scaleMode = PIXI.SCALE_MODES.NEAREST
+
   const tiles = await go(async () => {
     const texture = await PIXI.Texture.fromURL(items)
     const tileSize = 16
@@ -32,12 +39,6 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
 
     return Promise.all(promises)
   })
-  const fpsRecords: number[] = []
-  const entityIdToSprite = new Map<number, PIXI.Sprite>()
-  const keyStateObserver = new KeyStateObserver(canvas)
-
-  PIXI.settings.RESOLUTION = window.devicePixelRatio
-  PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
 
   const renderer = new PIXI.Renderer({
     view: canvas
