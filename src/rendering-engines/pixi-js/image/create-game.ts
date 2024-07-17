@@ -8,7 +8,7 @@ import { SyncDestructor } from 'extra-defer'
 import * as PIXI from 'pixi.js'
 import { go, pass } from '@blackglory/prelude'
 import { lerp } from '@utils/lerp'
-import items from '@src/images/items.png'
+import items from '@src/assets/items.png'
 import { loadImage } from '@src/utils/load-image'
 
 const MIN_GAME_FPS = 60

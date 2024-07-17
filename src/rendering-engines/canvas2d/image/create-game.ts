@@ -6,7 +6,7 @@ import { random, randomInt, randomIntInclusive } from 'extra-rand'
 import { truncateArrayRight } from '@blackglory/structures'
 import { go, pass } from '@blackglory/prelude'
 import { lerp } from '@utils/lerp'
-import items from '@src/images/items.png'
+import items from '@src/assets/items.png'
 import { loadImage } from '@utils/load-image'
 
 const MIN_GAME_FPS = 60
