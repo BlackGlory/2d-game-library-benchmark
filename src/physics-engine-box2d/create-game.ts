@@ -20,23 +20,21 @@ const SCREEN_HEIGHT_PIXELS = 1080
 const SCREEN_WIDTH_METERS = unitConverter.pixelToMeter(SCREEN_WIDTH_PIXELS)
 const SCREEN_HEIGHT_METERS= unitConverter.pixelToMeter(SCREEN_HEIGHT_PIXELS)
 
-export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
+export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<number>> {
   const fpsRecords: number[] = []
   const entityIdToSprite = new Map<number, PIXI.Sprite>()
   const entityIdToBody = new Map<number, Box2D.b2Body>()
 
-  PIXI.settings.RESOLUTION = window.devicePixelRatio
-  PIXI.BaseTexture.defaultOptions.scaleMode = PIXI.SCALE_MODES.NEAREST
+  PIXI.AbstractRenderer.defaultOptions.resolution = window.devicePixelRatio
+  PIXI.TextureSource.defaultOptions.scaleMode = 'nearest'
 
-  const renderer = new PIXI.Renderer({
-    view: canvas
+  const renderer = await PIXI.autoDetectRenderer({
+    canvas
   , width: SCREEN_WIDTH_PIXELS
   , height: SCREEN_HEIGHT_PIXELS
   , antialias: true
   })
   const stage = new PIXI.Container()
-  const particleStage = new PIXI.ParticleContainer(100000)
-  stage.addChild(particleStage)
 
   const physicsWorld = go(() => {
     const gravity = new Box2D.b2Vec2(0, 9.81)
@@ -170,19 +168,22 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
         ? Math.floor(fpsRecords.reduce((acc, cur) => acc + cur) / fpsRecords.length)
         : fpsRecords[0]
 
-      const text = new PIXI.Text(`FPS: ${fps}`, {
-        fontFamily: 'sans'
-      , fontSize: 48
-      , fill: 0xFFFFFF
+      const text = new PIXI.Text({
+        text: `FPS: ${fps}`
+      , style: {
+          fontFamily: 'sans'
+        , fontSize: 48
+        , fill: 0xFFFFFF
+        }
       })
       destructor.defer(() => text.destroy())
       text.position.x = 0
       text.position.y = 0
 
       const rect = new PIXI.Graphics()
+        .rect(0, 0, text.width, text.height)
+        .fill(0x000000)
       destructor.defer(() => rect.destroy())
-      rect.beginFill(0x000000)
-      rect.drawRect(0, 0, text.width, text.height)
       rect.position.x = text.position.x
       rect.position.y = text.position.y
 
@@ -191,19 +192,22 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     }
 
     {
-      const text = new PIXI.Text(`Objects: ${objects}`, {
-        fontFamily: 'sans'
-      , fontSize: 48
-      , fill: 0xFFFFFF
+      const text = new PIXI.Text({
+        text: `Objects: ${objects}`
+      , style: {
+          fontFamily: 'sans'
+        , fontSize: 48
+        , fill: 0xFFFFFF
+        }
       })
       destructor.defer(() => text.destroy())
       text.position.x = SCREEN_WIDTH_PIXELS - text.width
       text.position.y = 0
 
       const rect = new PIXI.Graphics()
+        .rect(0, 0, text.width, text.height)
+        .fill(0x000000)
       destructor.defer(() => rect.destroy())
-      rect.beginFill(0x000000)
-      rect.drawRect(0, 0, text.width, text.height)
       rect.position.x = text.position.x
       rect.position.y = text.position.y
 
@@ -227,12 +231,14 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     , [PreviousPosition, { x, y }]
     )
 
-    const rect = new PIXI.Sprite(PIXI.Texture.WHITE)
-    rect.x = 0
-    rect.y = 0
-    rect.width = unitConverter.meterToPixel(width)
-    rect.height = unitConverter.meterToPixel(height)
-    rect.tint = COLORS[colorIndex]
+    const sprite = new PIXI.Sprite({
+      texture: PIXI.Texture.WHITE
+    , x: 0
+    , y: 0
+    , width: unitConverter.meterToPixel(width)
+    , height: unitConverter.meterToPixel(height)
+    , tint: COLORS[colorIndex]
+    })
 
     const { body } = createNonRotatableCuboid(
       physicsWorld
@@ -242,8 +248,8 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     )
     body.SetLinearVelocity(new Box2D.b2Vec2(random(-1, 1), random(0, 2)))
 
-    particleStage.addChild(rect)
-    entityIdToSprite.set(entityId, rect)
+    stage.addChild(sprite)
+    entityIdToSprite.set(entityId, sprite)
     entityIdToBody.set(entityId, body)
 
     objects++

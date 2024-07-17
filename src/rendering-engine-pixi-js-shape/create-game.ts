@@ -15,23 +15,21 @@ const PHYSICS_FPS = 50
 const SCREEN_WIDTH_PIXELS = 1920
 const SCREEN_HEIGHT_PIXELS = 1080
 
-export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
+export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<number>> {
   const fpsRecords: number[] = []
   const entityIdToSprite = new Map<number, PIXI.Sprite>()
   const keyStateObserver = new KeyStateObserver(canvas)
 
-  PIXI.settings.RESOLUTION = window.devicePixelRatio
-  PIXI.BaseTexture.defaultOptions.scaleMode = PIXI.SCALE_MODES.NEAREST
+  PIXI.AbstractRenderer.defaultOptions.resolution = window.devicePixelRatio
+  PIXI.TextureSource.defaultOptions.scaleMode = 'nearest'
 
-  const renderer = new PIXI.Renderer({
-    view: canvas
+  const renderer = await PIXI.autoDetectRenderer({
+    canvas
   , width: SCREEN_WIDTH_PIXELS
   , height: SCREEN_HEIGHT_PIXELS
   , antialias: true
   })
   const stage = new PIXI.Container()
-  const particleStage = new PIXI.ParticleContainer(100000)
-  stage.addChild(particleStage)
 
   const world = new World()
 
@@ -172,19 +170,22 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       truncateArrayRight(fpsRecords, PHYSICS_FPS)
       const fps = Math.floor(fpsRecords.reduce((acc, cur) => acc + cur) / fpsRecords.length)
 
-      const text = new PIXI.Text(`FPS: ${fps}`, {
-        fontFamily: 'sans'
-      , fontSize: 48
-      , fill: 0xFFFFFF
+      const text = new PIXI.Text({
+        text: `FPS: ${fps}`
+      , style: {
+          fontFamily: 'sans'
+        , fontSize: 48
+        , fill: 0xFFFFFF
+        }
       })
       destructor.defer(() => text.destroy())
       text.position.x = 0
       text.position.y = 0
 
       const rect = new PIXI.Graphics()
+        .rect(0, 0, text.width, text.height)
+        .fill(0x000000)
       destructor.defer(() => rect.destroy())
-      rect.beginFill(0x000000)
-      rect.drawRect(0, 0, text.width, text.height)
       rect.position.x = text.position.x
       rect.position.y = text.position.y
 
@@ -193,19 +194,22 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     }
 
     {
-      const text = new PIXI.Text(`Objects: ${objects}`, {
-        fontFamily: 'sans'
-      , fontSize: 48
-      , fill: 0xFFFFFF
+      const text = new PIXI.Text({
+        text: `Objects: ${objects}`
+      , style: {
+          fontFamily: 'sans'
+        , fontSize: 48
+        , fill: 0xFFFFFF
+        }
       })
       destructor.defer(() => text.destroy())
       text.position.x = SCREEN_WIDTH_PIXELS - text.width
       text.position.y = 0
 
       const rect = new PIXI.Graphics()
+        .rect(0, 0, text.width, text.height)
+        .fill(0x000000)
       destructor.defer(() => rect.destroy())
-      rect.beginFill(0x000000)
-      rect.drawRect(0, 0, text.width, text.height)
       rect.position.x = text.position.x
       rect.position.y = text.position.y
 
@@ -236,14 +240,16 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     , [PreviousPosition, { x, y }]
     )
 
-    const sprite = new PIXI.Sprite(PIXI.Texture.WHITE)
-    sprite.x = 0
-    sprite.y = 0
-    sprite.width = width
-    sprite.height = height
-    sprite.tint = COLORS[colorIndex]
+    const sprite = new PIXI.Sprite({
+      texture: PIXI.Texture.WHITE
+    , x: 0
+    , y: 0
+    , width: width
+    , height: height
+    , tint: COLORS[colorIndex]
+    })
 
-    particleStage.addChild(sprite)
+    stage.addChild(sprite)
     entityIdToSprite.set(entityId, sprite)
 
     objects++
@@ -252,7 +258,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   function removeObject(entityId: number): void {
     const sprite = entityIdToSprite.get(entityId)!
     sprite.destroy()
-    particleStage.removeChild(sprite)
+    stage.removeChild(sprite)
     world.removeEntityId(entityId)
     entityIdToSprite.delete(entityId)
 
