@@ -17,7 +17,8 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@utils/*": ["src/utils/*"]
+      "@src/*": ["src/*"]
+    , "@utils/*": ["src/utils/*"]
     },
     "types": ["vitest/globals"]
   },

@@ -1,21 +1,30 @@
-import { useRef, useEffect, useCallback, MouseEventHandler } from 'react'
+import { useRef, useEffect, useCallback, MouseEventHandler, useState } from 'react'
 import screenfull from 'screenfull'
 import { GameLoop } from 'extra-game-loop'
+import { Awaitable } from '@blackglory/prelude'
+import { useEffectAsync } from 'extra-react-hooks'
 
 interface IGameProps {
-  createGame: (canvas: HTMLCanvasElement) => GameLoop<number>
+  createGame: (canvas: HTMLCanvasElement) => Awaitable<GameLoop<number>>
 }
 
 export function Game({ createGame }: IGameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [gameLoop, setGameLoop] = useState<GameLoop<number>>()
+
+  useEffectAsync(async () => {
+    const canvas = canvasRef.current
+    if (canvas) {
+      setGameLoop(await createGame(canvasRef.current))
+    }
+  }, [createGame])
 
   useEffect(() => {
-    if (canvasRef.current) {
-      const game = createGame(canvasRef.current)
-      game.start()
-      return () => game.stop()
+    if (gameLoop) {
+      gameLoop.start()
+      return () => gameLoop.stop()
     }
-  }, [createGame, canvasRef.current])
+  }, [gameLoop])
 
   const onClick: MouseEventHandler<HTMLCanvasElement> = useCallback(e => {
     if (e.detail % 2 === 0) {

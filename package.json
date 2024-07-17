@@ -23,6 +23,7 @@
   "dependencies": {
     "@blackglory/prelude": "^0.3.3",
     "@blackglory/structures": "^0.13.3",
+    "@blackglory/wait-for": "^0.7.4",
     "@dimforge/rapier2d": "^0.11.2",
     "@headlessui/react": "^1.7.14",
     "@thi.ng/ecs": "^0.7.50",

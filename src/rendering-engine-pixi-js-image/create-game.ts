@@ -4,22 +4,50 @@ import { World, Query, allOf } from 'extra-ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
 import { random, randomInt, randomIntInclusive } from 'extra-rand'
 import { truncateArrayRight } from '@blackglory/structures'
-import { pass } from '@blackglory/prelude'
-import { COLORS } from './colors'
+import { SyncDestructor } from 'extra-defer'
+import * as PIXI from 'pixi.js'
+import { go, pass } from '@blackglory/prelude'
 import { lerp } from '@utils/lerp'
+import items from '@src/images/items.png'
 
 const MIN_GAME_FPS = 60
 const PHYSICS_FPS = 50
 const SCREEN_WIDTH_PIXELS = 1920
 const SCREEN_HEIGHT_PIXELS = 1080
 
-export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
+export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<number>> {
+  const tiles = await go(async () => {
+    const texture = await PIXI.Texture.fromURL(items)
+    const tileSize = 16
+
+    const promises: PIXI.Texture[] = []
+    for (let y = 0; y < texture.height; y += tileSize) {
+      for (let x = 0; x < texture.width; x += tileSize) {
+        promises.push(new PIXI.Texture(
+          texture.baseTexture
+        , new PIXI.Rectangle(x, y, tileSize, tileSize)
+        ))
+      }
+    }
+
+    return Promise.all(promises)
+  })
   const fpsRecords: number[] = []
+  const entityIdToSprite = new Map<number, PIXI.Sprite>()
   const keyStateObserver = new KeyStateObserver(canvas)
 
-  canvas.width = SCREEN_WIDTH_PIXELS
-  canvas.height = SCREEN_HEIGHT_PIXELS
-  const ctx = canvas.getContext('2d')!
+  PIXI.settings.RESOLUTION = window.devicePixelRatio
+  PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
+
+  const renderer = new PIXI.Renderer({
+    view: canvas
+  , width: SCREEN_WIDTH_PIXELS
+  , height: SCREEN_HEIGHT_PIXELS
+  , antialias: true
+  })
+  const stage = new PIXI.Container()
+  const particleStage = new PIXI.ParticleContainer(100000)
+  stage.addChild(particleStage)
 
   const world = new World()
 
@@ -31,9 +59,6 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     x: float64
   , y: float64
   })
-  const Style = new StructureOfArrays({
-    color: uint8
-  })
   const Size = new StructureOfArrays({
     width: uint8
   , height: uint8
@@ -43,7 +68,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   , y: float64
   })
 
-  const queryObjects = new Query(world, allOf(Position, Velocity, Size, Style))
+  const queryObject = new Query(world, allOf(Position, Velocity, Size))
 
   let objects: number = 0
 
@@ -60,14 +85,15 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       pass()
     }
   , render(alpha: number) {
-      renderingSystem(alpha)
+      stageUpdatingSystem(alpha)
+      renderingSystem()
     }
   })
 
   return loop
 
   function physicsSystem(deltaTime: number): void {
-    for (const entityId of queryObjects.findAllEntityIds()) {
+    for (const entityId of queryObject.findAllEntityIds()) {
       updatePreviousPosition(entityId)
       Position.arrays.x[entityId] += Velocity.arrays.x[entityId] * deltaTime
       Position.arrays.y[entityId] += Velocity.arrays.y[entityId] * deltaTime
@@ -77,15 +103,13 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   function updatePreviousPosition(entityId: number): void {
     const previousX = Position.arrays.x[entityId]
     const previousY = Position.arrays.y[entityId]
-    PreviousPosition.upsert(entityId, {
-      x: previousX
-    , y: previousY
-    })
+    PreviousPosition.arrays.x[entityId] = previousX
+    PreviousPosition.arrays.y[entityId] = previousY
   }
 
   function directorSystem(deltaTime: number): void {
     const oldObjects = objects
-    for (const entityId of queryObjects.findAllEntityIds()) {
+    for (const entityId of queryObject.findAllEntityIds()) {
       if (
          keyStateObserver.getKeyState(Key.A) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Left) === KeyState.Down
@@ -114,6 +138,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
         Position.arrays.x[entityId] += 1 * deltaTime
         updatePreviousPosition(entityId)
       }
+
       const x = Position.arrays.x[entityId]
       const y = Position.arrays.y[entityId]
       const width = Size.arrays.width[entityId]
@@ -136,91 +161,115 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       , 10
       )
       for (let i = newObjects; i--;) {
-        addObjects()
+        addObject()
       }
     }
   }
 
-  function renderingSystem(alpha: number): void {
-    ctx.save()
-    ctx.fillStyle = 'black'
-    ctx.fillRect(0, 0, SCREEN_WIDTH_PIXELS, SCREEN_HEIGHT_PIXELS)
-    ctx.restore()
-
-    ctx.save()
-    for (const entityId of queryObjects.findAllEntityIds()) {
-      const color = Style.arrays.color[entityId]
-      ctx.fillStyle = COLORS[color]
+  function stageUpdatingSystem(alpha: number): void {
+    for (const entityId of queryObject.findAllEntityIds()) {
       const previousX = PreviousPosition.arrays.x[entityId]
       const previousY = PreviousPosition.arrays.y[entityId]
       const currentX = Position.arrays.x[entityId]
       const currentY = Position.arrays.y[entityId]
-      const x = lerp(alpha, previousX, currentX)
-      const y = lerp(alpha, previousY, currentY)
-      const width = Size.arrays.width[entityId]
-      const height = Size.arrays.height[entityId]
-      ctx.fillRect(x, y, width, height)
-    }
-    ctx.restore()
 
+      const rect = entityIdToSprite.get(entityId)!
+      rect.position.set(
+        lerp(alpha, previousX, currentX)
+      , lerp(alpha, previousY, currentY)
+      )
+    }
+  }
+
+  function renderingSystem(): void {
+    const destructor = new SyncDestructor()
     {
       fpsRecords.push(loop.getFramesOfSecond())
       truncateArrayRight(fpsRecords, PHYSICS_FPS)
       const fps = Math.floor(fpsRecords.reduce((acc, cur) => acc + cur) / fpsRecords.length)
-      const text = `FPS: ${fps}`
-      ctx.save()
-      ctx.font = '48px sans'
-      ctx.textBaseline = 'top'
-      ctx.fillStyle = 'black'
-      const width = ctx.measureText(text).width
-      ctx.fillRect(0, 0, width, 48)
-      ctx.fillStyle = 'white'
-      ctx.fillText(text, 0, 0)
-      ctx.restore()
+
+      const text = new PIXI.Text(`FPS: ${fps}`, {
+        fontFamily: 'sans'
+      , fontSize: 48
+      , fill: 0xFFFFFF
+      })
+      destructor.defer(() => text.destroy())
+      text.position.x = 0
+      text.position.y = 0
+
+      const rect = new PIXI.Graphics()
+      destructor.defer(() => rect.destroy())
+      rect.beginFill(0x000000)
+      rect.drawRect(0, 0, text.width, text.height)
+      rect.position.x = text.position.x
+      rect.position.y = text.position.y
+
+      stage.addChild(rect, text)
+      destructor.defer(() => stage.removeChild(rect, text))
     }
 
     {
-      const text = `Objects: ${objects}`
-      ctx.save()
-      ctx.font = '48px sans'
-      ctx.textBaseline = 'top'
-      ctx.fillStyle = 'black'
-      const width = ctx.measureText(text).width
-      const x = SCREEN_WIDTH_PIXELS - width
-      ctx.fillRect(x, 0, width, 48)
-      ctx.fillStyle = 'white'
-      ctx.fillText(text, x, 0)
-      ctx.restore()
+      const text = new PIXI.Text(`Objects: ${objects}`, {
+        fontFamily: 'sans'
+      , fontSize: 48
+      , fill: 0xFFFFFF
+      })
+      destructor.defer(() => text.destroy())
+      text.position.x = SCREEN_WIDTH_PIXELS - text.width
+      text.position.y = 0
+
+      const rect = new PIXI.Graphics()
+      destructor.defer(() => rect.destroy())
+      rect.beginFill(0x000000)
+      rect.drawRect(0, 0, text.width, text.height)
+      rect.position.x = text.position.x
+      rect.position.y = text.position.y
+
+      stage.addChild(rect, text)
+      destructor.defer(() => stage.removeChild(rect, text))
     }
+
+    renderer.render(stage)
+
+    destructor.execute()
   }
 
-  function addObjects(): void {
+  function addObject(): void {
     const x = random(0, SCREEN_WIDTH_PIXELS)
     const y = random(0, SCREEN_HEIGHT_PIXELS)
+    const vx = random(-0.01, 0.01)
+    const vy = random(-0.01, 0.01)
+    const width = randomIntInclusive(1, 100)
+    const height = randomIntInclusive(1, 100)
+    const tile = randomInt(0, tiles.length)
 
     const entityId = world.createEntityId()
     world.addComponents(
       entityId
     , [Position, { x, y }]
-    , [Velocity, {
-        x: random(-0.01, 0.01)
-      , y: random(-0.01, 0.01)
-      }]
-    , [Size, {
-        width: randomIntInclusive(1, 100)
-      , height: randomIntInclusive(1, 100)
-      }]
-    , [Style, {
-        color: randomInt(0, COLORS.length)
-      }]
+    , [Velocity, { x: vx, y: vy }]
+    , [Size, { width, height }]
     , [PreviousPosition, { x, y }]
     )
+
+    const sprite = new PIXI.Sprite(tiles[tile])
+    sprite.x = 0
+    sprite.y = 0
+    sprite.width = width
+    sprite.height = height
+
+    particleStage.addChild(sprite)
+    entityIdToSprite.set(entityId, sprite)
 
     objects++
   }
 
   function removeObject(entityId: number): void {
+    const sprite = entityIdToSprite.get(entityId)!
+    sprite.destroy()
+    particleStage.removeChild(sprite)
     world.removeEntityId(entityId)
+    entityIdToSprite.delete(entityId)
 
     objects--
   }

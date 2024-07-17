@@ -92,9 +92,9 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   , height: uint8
   })
 
-  const queryBox = new Query(world, allOf(Position, Size))
+  const queryObject = new Query(world, allOf(Position, Size))
 
-  let boxes: number = 0
+  let objects: number = 0
   const boxWidth = 1
   const boxHeight = 1
   const gap = 0.5
@@ -127,7 +127,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   function physicsSystem(): void {
     physicsWorld.step()
 
-    for (const entityId of queryBox.findAllEntityIds()) {
+    for (const entityId of queryObject.findAllEntityIds()) {
       updatePreviousPosition(entityId)
       const width = Size.arrays.width[entityId]
       const height = Size.arrays.height[entityId]
@@ -146,7 +146,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   }
 
   function stageUpdatingSystem(alpha: number): void {
-    for (const entityId of queryBox.findAllEntityIds()) {
+    for (const entityId of queryObject.findAllEntityIds()) {
       const previousX = unitConverter.meterToPixel(PreviousPosition.arrays.x[entityId])
       const previousY = unitConverter.meterToPixel(PreviousPosition.arrays.y[entityId])
       const currentX = unitConverter.meterToPixel(Position.arrays.x[entityId])
@@ -191,7 +191,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     }
 
     {
-      const text = new PIXI.Text(`Boxes: ${boxes}`, {
+      const text = new PIXI.Text(`Objects: ${objects}`, {
         fontFamily: 'sans'
       , fontSize: 48
       , fill: 0xFFFFFF
@@ -247,7 +247,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     entityIdToRigidBody.set(entityId, rigidBody)
     entityIdToCollider.set(entityId, collider)
 
-    boxes++
+    objects++
   }
 }
 

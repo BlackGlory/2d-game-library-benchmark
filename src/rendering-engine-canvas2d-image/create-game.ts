@@ -4,16 +4,31 @@ import { World, Query, allOf } from 'extra-ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
 import { random, randomInt, randomIntInclusive } from 'extra-rand'
 import { truncateArrayRight } from '@blackglory/structures'
-import { pass } from '@blackglory/prelude'
-import { COLORS } from './colors'
+import { go, pass } from '@blackglory/prelude'
 import { lerp } from '@utils/lerp'
+import items from '@src/images/items.png'
+import { loadImage } from '@utils/load-image'
 
 const MIN_GAME_FPS = 60
 const PHYSICS_FPS = 50
 const SCREEN_WIDTH_PIXELS = 1920
 const SCREEN_HEIGHT_PIXELS = 1080
 
-export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
+export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<number>> {
+  const tiles = await go(async () => {
+    const image = await loadImage(items)
+    const tileSize = 16
+
+    const promises: Array<Promise<ImageBitmap>> = []
+    for (let y = 0; y < image.height; y += tileSize) {
+      for (let x = 0; x < image.width; x += tileSize) {
+        promises.push(createImageBitmap(image, x, y, tileSize, tileSize))
+      }
+    }
+
+    return Promise.all(promises)
+  })
+
   const fpsRecords: number[] = []
   const keyStateObserver = new KeyStateObserver(canvas)
 
@@ -32,7 +47,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   , y: float64
   })
   const Style = new StructureOfArrays({
-    color: uint8
+    tile: uint8
   })
   const Size = new StructureOfArrays({
     width: uint8
@@ -43,7 +58,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   , y: float64
   })
 
-  const queryObjects = new Query(world, allOf(Position, Velocity, Size, Style))
+  const queryObject = new Query(world, allOf(Position, Velocity, Size, Style))
 
   let objects: number = 0
 
@@ -67,7 +82,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   return loop
 
   function physicsSystem(deltaTime: number): void {
-    for (const entityId of queryObjects.findAllEntityIds()) {
+    for (const entityId of queryObject.findAllEntityIds()) {
       updatePreviousPosition(entityId)
       Position.arrays.x[entityId] += Velocity.arrays.x[entityId] * deltaTime
       Position.arrays.y[entityId] += Velocity.arrays.y[entityId] * deltaTime
@@ -77,15 +92,13 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   function updatePreviousPosition(entityId: number): void {
     const previousX = Position.arrays.x[entityId]
     const previousY = Position.arrays.y[entityId]
-    PreviousPosition.upsert(entityId, {
-      x: previousX
-    , y: previousY
-    })
+    PreviousPosition.arrays.x[entityId] = previousX
+    PreviousPosition.arrays.y[entityId] = previousY
   }
 
   function directorSystem(deltaTime: number): void {
-    const oldObjects = objects
-    for (const entityId of queryObjects.findAllEntityIds()) {
+    const oldEntities = objects
+    for (const entityId of queryObject.findAllEntityIds()) {
       if (
          keyStateObserver.getKeyState(Key.A) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Left) === KeyState.Down
@@ -130,13 +143,13 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
 
     const currentFPS = loop.getFramesOfSecond()
     if (currentFPS >= MIN_GAME_FPS) {
-      const removedObjects = oldObjects - objects
-      const newObjects = Math.max(
-        Math.ceil(removedObjects + (currentFPS - MIN_GAME_FPS))
+      const removedEntities = oldEntities - objects
+      const newEntities = Math.max(
+        Math.ceil(removedEntities + (currentFPS - MIN_GAME_FPS))
       , 10
       )
-      for (let i = newObjects; i--;) {
-        addObjects()
+      for (let i = newEntities; i--;) {
+        addObject()
       }
     }
   }
@@ -148,9 +161,9 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     ctx.restore()
 
     ctx.save()
-    for (const entityId of queryObjects.findAllEntityIds()) {
-      const color = Style.arrays.color[entityId]
-      ctx.fillStyle = COLORS[color]
+    ctx.imageSmoothingEnabled = false
+    for (const entityId of queryObject.findAllEntityIds()) {
+      const tile = Style.arrays.tile[entityId]
       const previousX = PreviousPosition.arrays.x[entityId]
       const previousY = PreviousPosition.arrays.y[entityId]
       const currentX = Position.arrays.x[entityId]
@@ -159,7 +172,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       const y = lerp(alpha, previousY, currentY)
       const width = Size.arrays.width[entityId]
       const height = Size.arrays.height[entityId]
-      ctx.fillRect(x, y, width, height)
+      ctx.drawImage(tiles[tile], x, y, width, height)
     }
     ctx.restore()
 
@@ -194,7 +207,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     }
   }
 
-  function addObjects(): void {
+  function addObject(): void {
     const x = random(0, SCREEN_WIDTH_PIXELS)
     const y = random(0, SCREEN_HEIGHT_PIXELS)
 
@@ -211,7 +224,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       , height: randomIntInclusive(1, 100)
       }]
     , [Style, {
-        color: randomInt(0, COLORS.length)
+        tile: randomInt(0, tiles.length)
       }]
     , [PreviousPosition, { x, y }]
     )

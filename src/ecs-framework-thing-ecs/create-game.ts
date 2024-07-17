@@ -76,9 +76,9 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   , size: 2
   })!
 
-  const queryBox = world.defGroup([Position, Velocity, Size, Style])
+  const queryObject = world.defGroup([Position, Velocity, Size, Style])
 
-  let boxes: number = 0
+  let objects: number = 0
 
   const loop = new GameLoop({
     fixedDeltaTime: 1000 / PHYSICS_FPS
@@ -100,7 +100,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   return loop
 
   function physicsSystem(deltaTime: number): void {
-    queryBox.forEach(entity => {
+    queryObject.forEach(entity => {
       updatePreviousPosition(entity)
       entity.Position[Vector.x] += entity.Velocity[Vector.x] * deltaTime
       entity.Position[Vector.y] += entity.Velocity[Vector.y] * deltaTime
@@ -114,8 +114,8 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   }
 
   function directorSystem(deltaTime: number): void {
-    const oldEntities = boxes
-    queryBox.forEach(entity => {
+    const oldObjects = objects
+    queryObject.forEach(entity => {
       if (
          keyStateObserver.getKeyState(Key.A) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Left) === KeyState.Down
@@ -154,14 +154,19 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
         (x + width) < 0 ||
         (y + height) < 0
       ) {
-        removeBox(entity.id)
+        removeObject(entity.id)
       }
     })
 
-    if (loop.getFramesOfSecond() >= MIN_GAME_FPS) {
-      const removedEntities = oldEntities - boxes
-      for (let i = removedEntities + 1; i--;) {
-        addBox()
+    const currentFPS = loop.getFramesOfSecond()
+    if (currentFPS >= MIN_GAME_FPS) {
+      const removedObjects = oldObjects - objects
+      const newObjects = Math.max(
+        Math.ceil(removedObjects + (currentFPS - MIN_GAME_FPS))
+      , 10
+      )
+      for (let i = newObjects; i--;) {
+        addObject()
       }
     }
   }
@@ -173,7 +178,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     ctx.restore()
 
     ctx.save()
-    queryBox.forEach(entity => {
+    queryObject.forEach(entity => {
       const color = entity.Style[StyleIndex.color]
       ctx.fillStyle = COLORS[color]
       const previousPosition = PreviousPosition.get(entity.id)!
@@ -206,7 +211,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     }
 
     {
-      const text = `Boxes: ${boxes}`
+      const text = `Objects: ${objects}`
       ctx.save()
       ctx.font = '48px sans'
       ctx.textBaseline = 'top'
@@ -220,7 +225,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     }
   }
 
-  function addBox(): void {
+  function addObject(): void {
     const x = random(0, SCREEN_WIDTH_PIXELS)
     const y = random(0, SCREEN_HEIGHT_PIXELS)
 
@@ -233,12 +238,12 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     , PreviousPosition: [x, y]
     })
 
-    boxes++
+    objects++
   }
 
-  function removeBox(entityId: number): void {
+  function removeObject(entityId: number): void {
     world.deleteID(entityId)
 
-    boxes--
+    objects--
   }
 }
