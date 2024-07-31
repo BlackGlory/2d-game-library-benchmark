@@ -28,11 +28,12 @@ export function Game({ createGame }: IGameProps) {
 
   const onClick: MouseEventHandler<HTMLCanvasElement> = useCallback(e => {
     if (e.detail % 2 === 0) {
-      if (screenfull.isEnabled && canvasRef.current) {
-        screenfull.toggle(canvasRef.current)
+      const canvas = canvasRef.current
+      if (screenfull.isEnabled && canvas) {
+        screenfull.toggle(canvas)
       }
     }
-  }, [canvasRef.current])
+  }, [])
 
   return (
     <canvas
