@@ -9,7 +9,7 @@ import * as PIXI from 'pixi.js'
 import { COLORS } from './colors'
 import Box2DFactory from 'box2d-wasm'
 import { UnitConverter } from '@utils/unit-converter'
-import { lerp } from '@utils/lerp'
+import { lerp } from 'extra-utils'
 
 const Box2D = await Box2DFactory()
 
@@ -152,8 +152,8 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
 
       const rect = entityIdToSprite.get(entityId)!
       rect.position.set(
-        lerp(alpha, previousX, currentX)
-      , lerp(alpha, previousY, currentY)
+        lerp(alpha, [previousX, currentX])
+      , lerp(alpha, [previousY, currentY])
       )
     }
   }

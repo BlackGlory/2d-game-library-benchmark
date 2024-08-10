@@ -8,7 +8,7 @@ import { SyncDestructor } from 'extra-defer'
 import * as PIXI from 'pixi.js'
 import { pass } from '@blackglory/prelude'
 import { COLORS } from './colors'
-import { lerp } from '@utils/lerp'
+import { lerp } from 'extra-utils'
 
 const MIN_GAME_FPS = 60
 const PHYSICS_FPS = 50
@@ -157,8 +157,8 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
 
       const rect = entityIdToSprite.get(entityId)!
       rect.position.set(
-        lerp(alpha, previousX, currentX)
-      , lerp(alpha, previousY, currentY)
+        lerp(alpha, [previousX, currentX])
+      , lerp(alpha, [previousY, currentY])
       )
     }
   }

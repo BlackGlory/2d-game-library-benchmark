@@ -6,7 +6,7 @@ import { random, randomInt, randomIntInclusive } from 'extra-rand'
 import { truncateArrayRight } from '@blackglory/structures'
 import { pass } from '@blackglory/prelude'
 import { COLORS } from './colors'
-import { lerp } from '@utils/lerp'
+import { lerp } from 'extra-utils'
 
 const MIN_GAME_FPS = 60
 const PHYSICS_FPS = 50
@@ -153,8 +153,8 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       const previousY = PreviousPosition.arrays.y[entityId]
       const currentX = Position.arrays.x[entityId]
       const currentY = Position.arrays.y[entityId]
-      const x = lerp(alpha, previousX, currentX)
-      const y = lerp(alpha, previousY, currentY)
+      const x = lerp(alpha, [previousX, currentX])
+      const y = lerp(alpha, [previousY, currentY])
       const width = Size.arrays.width[entityId]
       const height = Size.arrays.height[entityId]
       ctx.fillRect(x, y, width, height)

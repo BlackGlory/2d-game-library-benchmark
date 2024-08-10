@@ -8,7 +8,7 @@ import { go, pass } from '@blackglory/prelude'
 import * as PIXI from 'pixi.js'
 import { COLORS } from './colors'
 import { UnitConverter } from '@utils/unit-converter'
-import { lerp } from '@utils/lerp'
+import { lerp } from 'extra-utils'
 import RAPIER from '@dimforge/rapier2d'
 
 const PHYSICS_FPS = 50
@@ -152,8 +152,8 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
 
       const rect = entityIdToSprite.get(entityId)!
       rect.position.set(
-        lerp(alpha, previousX, currentX)
-      , lerp(alpha, previousY, currentY)
+        lerp(alpha, [previousX, currentX])
+      , lerp(alpha, [previousY, currentY])
       )
     }
   }

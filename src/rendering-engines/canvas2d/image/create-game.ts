@@ -5,7 +5,7 @@ import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
 import { random, randomInt, randomIntInclusive } from 'extra-rand'
 import { truncateArrayRight } from '@blackglory/structures'
 import { go, pass } from '@blackglory/prelude'
-import { lerp } from '@utils/lerp'
+import { lerp } from 'extra-utils'
 import items from '@src/assets/items.png'
 import { loadImage } from '@utils/load-image'
 
@@ -168,8 +168,8 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
       const previousY = PreviousPosition.arrays.y[entityId]
       const currentX = Position.arrays.x[entityId]
       const currentY = Position.arrays.y[entityId]
-      const x = lerp(alpha, previousX, currentX)
-      const y = lerp(alpha, previousY, currentY)
+      const x = lerp(alpha, [previousX, currentX])
+      const y = lerp(alpha, [previousY, currentY])
       const width = Size.arrays.width[entityId]
       const height = Size.arrays.height[entityId]
       ctx.drawImage(tiles[tile], x, y, width, height)
