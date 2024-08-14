@@ -2959,10 +2959,10 @@ extra-fsm@^0.2.1:
     extra-utils "^5.1.1"
     rxjs "^7.8.0"
 
-extra-game-loop@^0.3.4:
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/extra-game-loop/-/extra-game-loop-0.3.4.tgz#bf5d6c39889055698da3f2bbd5028e1953ff8dca"
-  integrity sha512-c+olHgg4FEjH13iTTqerwTJtH43J8wjRk5MFntDk7x88gt+c9I85NPcy+vE1VTIBIgz25pyg7XwQt6l1cGJyag==
+extra-game-loop@^0.3.6:
+  version "0.3.6"
+  resolved "https://registry.yarnpkg.com/extra-game-loop/-/extra-game-loop-0.3.6.tgz#1dc3690cd7efdd762bbfb387b33f58fee2fd07f4"
+  integrity sha512-w/dEfgj57bdFnAPKZIvyhSROLj4P7aI4ZRxkwJD5Gw4nEqrs5U9lSaEXkTYrVZqZCDO8e5SvFzoX9ZJmsKIfwg==
   dependencies:
     "@blackglory/prelude" "^0.1.5"
     extra-fsm "^0.1.0"

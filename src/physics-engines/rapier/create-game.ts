@@ -111,9 +111,6 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
   , fixedUpdate(deltaTime: number): void {
       physicsSystem()
     }
-  , lateUpdate(deltaTime: number): void {
-      pass()
-    }
   , render(alpha: number) {
       stageUpdatingSystem(alpha)
       renderingSystem()

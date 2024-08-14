@@ -89,9 +89,6 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   , fixedUpdate(deltaTime: number): void {
       physicsSystem(deltaTime)
     }
-  , lateUpdate(deltaTime: number): void {
-      pass()
-    }
   , render(alpha: number) {
       renderingSystem(alpha)
     }
