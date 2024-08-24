@@ -3,10 +3,9 @@ import { StructureOfArrays, float64, uint8 } from 'structure-of-arrays'
 import { World, Query, allOf } from 'extra-ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
 import { random, randomInt, randomIntInclusive } from 'extra-rand'
-import { truncateArrayRight } from '@blackglory/structures'
-import { pass } from '@blackglory/prelude'
 import { COLORS } from './colors'
 import { lerp } from 'extra-utils'
+import { Sampler } from '@utils/sampler'
 
 const MIN_GAME_FPS = 60
 const PHYSICS_FPS = 50
@@ -14,7 +13,7 @@ const SCREEN_WIDTH_PIXELS = 1920
 const SCREEN_HEIGHT_PIXELS = 1080
 
 export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
-  const fpsRecords: number[] = []
+  const fpsSampler = new Sampler(60)
   const keyStateObserver = new KeyStateObserver(canvas)
 
   canvas.width = SCREEN_WIDTH_PIXELS
@@ -51,6 +50,8 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     fixedDeltaTime: 1000 / PHYSICS_FPS
   , maximumDeltaTime: 1000 / (PHYSICS_FPS / 2)
   , update(deltaTime: number): void {
+      fpsSampler.sample(loop.getFramesOfSecond())
+
       directorSystem(deltaTime)
     }
   , fixedUpdate(deltaTime: number): void {
@@ -125,7 +126,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       }
     }
 
-    const currentFPS = loop.getFramesOfSecond()
+    const currentFPS = Math.floor(fpsSampler.get())
     if (currentFPS >= MIN_GAME_FPS) {
       const removedObjects = oldObjects - objects
       const newObjects = Math.max(
@@ -133,7 +134,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       , 10
       )
       for (let i = newObjects; i--;) {
-        addObjects()
+        addObject()
       }
     }
   }
@@ -161,10 +162,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     ctx.restore()
 
     {
-      fpsRecords.push(loop.getFramesOfSecond())
-      truncateArrayRight(fpsRecords, PHYSICS_FPS)
-      const fps = Math.floor(fpsRecords.reduce((acc, cur) => acc + cur) / fpsRecords.length)
-      const text = `FPS: ${fps}`
+      const text = `FPS: ${Math.floor(fpsSampler.get())}`
       ctx.save()
       ctx.font = '48px sans'
       ctx.textBaseline = 'top'
@@ -191,7 +189,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     }
   }
 
-  function addObjects(): void {
+  function addObject(): void {
     const x = random(0, SCREEN_WIDTH_PIXELS)
     const y = random(0, SCREEN_HEIGHT_PIXELS)
 

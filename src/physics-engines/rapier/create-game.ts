@@ -2,14 +2,14 @@ import { GameLoop } from 'extra-game-loop'
 import { StructureOfArrays, float64, uint8 } from 'structure-of-arrays'
 import { World, Query, allOf } from 'extra-ecs'
 import { random, randomInt } from 'extra-rand'
-import { truncateArrayRight } from '@blackglory/structures'
 import { SyncDestructor } from 'extra-defer'
-import { go, pass } from '@blackglory/prelude'
+import { go } from '@blackglory/prelude'
 import * as PIXI from 'pixi.js'
 import { COLORS } from './colors'
 import { UnitConverter } from '@utils/unit-converter'
 import { lerp } from 'extra-utils'
 import RAPIER from '@dimforge/rapier2d'
+import { Sampler } from '@utils/sampler'
 
 const PHYSICS_FPS = 50
 const unitConverter = new UnitConverter(20)
@@ -19,7 +19,7 @@ const SCREEN_WIDTH_METERS = unitConverter.pixelToMeter(SCREEN_WIDTH_PIXELS)
 const SCREEN_HEIGHT_METERS= unitConverter.pixelToMeter(SCREEN_HEIGHT_PIXELS)
 
 export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<number>> {
-  const fpsRecords: number[] = []
+  const fpsSampler = new Sampler(60)
   const entityIdToSprite = new Map<number, PIXI.Sprite>()
   const entityIdToRigidBody = new Map<number, RAPIER.RigidBody>()
   const entityIdToCollider = new Map<number, RAPIER.Collider>()
@@ -106,7 +106,7 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
     fixedDeltaTime: 1000 / PHYSICS_FPS
   , maximumDeltaTime: 1000 / (PHYSICS_FPS / 2)
   , update(deltaTime: number): void {
-      pass()
+      fpsSampler.sample(loop.getFramesOfSecond())
     }
   , fixedUpdate(deltaTime: number): void {
       physicsSystem()
@@ -158,15 +158,8 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
   function renderingSystem(): void {
     const destructor = new SyncDestructor()
     {
-      fpsRecords.push(loop.getFramesOfSecond())
-      truncateArrayRight(fpsRecords, PHYSICS_FPS)
-      const fps =
-        fpsRecords.length > 1
-        ? Math.floor(fpsRecords.reduce((acc, cur) => acc + cur) / fpsRecords.length)
-        : fpsRecords[0]
-
       const text = new PIXI.Text({
-        text: `FPS: ${fps}`
+        text: `FPS: ${Math.floor(fpsSampler.get())}`
       , style: {
           fontFamily: 'sans'
         , fontSize: 48

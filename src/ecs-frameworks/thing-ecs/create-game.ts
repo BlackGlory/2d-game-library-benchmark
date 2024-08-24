@@ -2,10 +2,9 @@ import { GameLoop } from 'extra-game-loop'
 import { ECS, GroupTuple } from '@thi.ng/ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
 import { random, randomInt, randomIntInclusive } from 'extra-rand'
-import { truncateArrayRight } from '@blackglory/structures'
-import { pass } from '@blackglory/prelude'
 import { COLORS } from './colors'
 import { lerp } from 'extra-utils'
+import { Sampler } from '@utils/sampler'
 
 const MIN_GAME_FPS = 60
 const PHYSICS_FPS = 50
@@ -27,7 +26,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     color
   }
 
-  const fpsRecords: number[] = []
+  const fpsSampler = new Sampler(60)
   const keyStateObserver = new KeyStateObserver(canvas)
 
   canvas.width = SCREEN_WIDTH_PIXELS
@@ -84,6 +83,8 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     fixedDeltaTime: 1000 / PHYSICS_FPS
   , maximumDeltaTime: 1000 / (PHYSICS_FPS / 2)
   , update(deltaTime: number): void {
+      fpsSampler.sample(loop.getFramesOfSecond())
+
       directorSystem(deltaTime)
     }
   , fixedUpdate(deltaTime: number): void {
@@ -155,7 +156,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       }
     })
 
-    const currentFPS = loop.getFramesOfSecond()
+    const currentFPS = Math.floor(fpsSampler.get())
     if (currentFPS >= MIN_GAME_FPS) {
       const removedObjects = oldObjects - objects
       const newObjects = Math.max(
@@ -192,10 +193,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     ctx.restore()
 
     {
-      fpsRecords.push(loop.getFramesOfSecond())
-      truncateArrayRight(fpsRecords, PHYSICS_FPS)
-      const fps = Math.floor(fpsRecords.reduce((acc, cur) => acc + cur) / fpsRecords.length)
-      const text = `FPS: ${fps}`
+      const text = `FPS: ${Math.floor(fpsSampler.get())}`
       ctx.save()
       ctx.font = '48px sans'
       ctx.textBaseline = 'top'
