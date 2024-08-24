@@ -2921,13 +2921,14 @@ extra-compatible@^0.2.0:
     "@blackglory/prelude" "^0.3.0"
     iterable-operator "^4.0.2"
 
-extra-defer@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/extra-defer/-/extra-defer-0.3.0.tgz#6fdf3747a3ee0945bdd30f3a8dc96d1ffb3ecb39"
-  integrity sha512-F8IhbGEpUacHmLdxRXzpFYz000ijwFBDjlweM0PNUbhhMUFWTqdmUj+DDX3ozOMRPoBo+1mqmyBOsd6V6mRbaQ==
+extra-defer@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/extra-defer/-/extra-defer-0.3.1.tgz#43d890a82355f91f814e7c1ac102d1f4b1557728"
+  integrity sha512-60Bc1ETQHy5+tGBaT0M1Uw1sZCeh6O5FiNCwLChd63OdDB4MOSMWYowbIeKI0NhQAbDBG5N4/O535q+DA+7Z/g==
   dependencies:
     "@blackglory/go" "^2.0.0"
     "@blackglory/prelude" "^0.3.5"
+    extra-generator "^0.5.9"
     extra-promise "^6.2.0"
 
 extra-ecs@^0.5.2:
@@ -2959,10 +2960,10 @@ extra-fsm@^0.2.1:
     extra-utils "^5.1.1"
     rxjs "^7.8.0"
 
-extra-game-loop@^0.3.6:
-  version "0.3.6"
-  resolved "https://registry.yarnpkg.com/extra-game-loop/-/extra-game-loop-0.3.6.tgz#1dc3690cd7efdd762bbfb387b33f58fee2fd07f4"
-  integrity sha512-w/dEfgj57bdFnAPKZIvyhSROLj4P7aI4ZRxkwJD5Gw4nEqrs5U9lSaEXkTYrVZqZCDO8e5SvFzoX9ZJmsKIfwg==
+extra-game-loop@^0.3.7:
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/extra-game-loop/-/extra-game-loop-0.3.7.tgz#d8c1bdd087d8ef2fc5f57c67a9054008cbf10ff2"
+  integrity sha512-DsHReYC/VkMIHI/2UANgKf98+hvFXLFS2vKl7P6eTZAtreGKTjqttpRALQ5aapyHOZ4cibTDAURpukkBgBoI2g==
   dependencies:
     "@blackglory/prelude" "^0.1.5"
     extra-fsm "^0.1.0"
@@ -2979,6 +2980,14 @@ extra-generator@^0.5.1:
   version "0.5.8"
   resolved "https://registry.yarnpkg.com/extra-generator/-/extra-generator-0.5.8.tgz#5db796e8616baedbdf269b5498464c6e2f549aaf"
   integrity sha512-fMf8Yw8r16FFE58ZW++QMZ4k5yexzQ8i74OXsPShuysGfdLAm6snGw2SfIIBluSahq61IS1kmGJLujY2glvIqg==
+  dependencies:
+    "@blackglory/prelude" "^0.3.1"
+    return-style "^3.0.0"
+
+extra-generator@^0.5.9:
+  version "0.5.9"
+  resolved "https://registry.yarnpkg.com/extra-generator/-/extra-generator-0.5.9.tgz#c90de74a4958079d1fbed59f7965ea22dba1c5a6"
+  integrity sha512-FXwTIY1m05tjuG/u5vlFVhEw81dvV3ZR3XL9pnishdvrMVXb9h2VNC36JJlD9cOXJiSmZUVwN8Ci+uTsCVwpcw==
   dependencies:
     "@blackglory/prelude" "^0.3.1"
     return-style "^3.0.0"
@@ -3055,13 +3064,13 @@ extra-rand@^0.1.1:
   resolved "https://registry.yarnpkg.com/extra-rand/-/extra-rand-0.1.5.tgz#5a3bbba6bbc8ed4e2c0c9dc66a4a2b6a309040df"
   integrity sha512-xOaelLjCoQrCjnpNHCwoKHew4Jiu2ZeFGVEce0MgFCvPoZGnu9KO/zv+OObnvV4Np8k05/Q0x1GaEqHXuveeYg==
 
-extra-rand@^0.3.2:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/extra-rand/-/extra-rand-0.3.2.tgz#5093f4a357fad561133cd501e0349df2587ecc27"
-  integrity sha512-3/Fh0tHu7p7J3qZWWUegHcTK0x9X18lAz3URq7W4Xm9Trwy1Q3SKXuIo7iYRke7a64SeY/FjjX9D5oFzqinwEg==
+extra-rand@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/extra-rand/-/extra-rand-0.3.3.tgz#f4ea82a2281615123d378b5701ab39985804b3a1"
+  integrity sha512-V8iPmuOZZSN2fQmDEL5cFCJVgrvycfY2K0vys76EU3cGSmiEHVqsp6KocT22G7XKUyjsvKnVYnZ6a/btbqf94A==
   dependencies:
     "@blackglory/errors" "^3.0.3"
-    extra-utils "^5.7.0"
+    extra-utils "^5.10.0"
     justypes "^4.2.1"
 
 extra-react-hooks@^0.6.9:
@@ -3098,7 +3107,7 @@ extra-utils@^3.3.0, extra-utils@^3.7.0:
     justypes "^3.1.2"
     lodash "^4.17.21"
 
-extra-utils@^5.1.0, extra-utils@^5.1.1, extra-utils@^5.2.0, extra-utils@^5.4.0, extra-utils@^5.6.0, extra-utils@^5.7.0:
+extra-utils@^5.1.0, extra-utils@^5.1.1, extra-utils@^5.2.0, extra-utils@^5.4.0, extra-utils@^5.6.0:
   version "5.9.0"
   resolved "https://registry.yarnpkg.com/extra-utils/-/extra-utils-5.9.0.tgz#d4c33369728a371831588f83946c97b21e4cfd14"
   integrity sha512-enqWrHtPHLHFkxPMFDunDpr/MDXx1xQNF/Y/DZ7g4RvKN+N4mJX1bbb0PjeHu6r9LwHGsCCNZsM3U5PbGMOFgQ==
@@ -3106,7 +3115,7 @@ extra-utils@^5.1.0, extra-utils@^5.1.1, extra-utils@^5.2.0, extra-utils@^5.4.0, 
     justypes "^4.2.0"
     lodash-es "^4.17.21"
 
-extra-utils@^5.11.0:
+extra-utils@^5.10.0, extra-utils@^5.11.0:
   version "5.11.0"
   resolved "https://registry.yarnpkg.com/extra-utils/-/extra-utils-5.11.0.tgz#daec1c3f724be42645724d7bc01a3c3978533b4a"
   integrity sha512-kIuO3trdOLUfrrd/AxZ3w8cywpPQ8rKzOfAQ9/Qu6nuOOp+bHizsxNLPlxPIeymqV5GQ5D7D6IPJd/Qhp6r2XQ==
