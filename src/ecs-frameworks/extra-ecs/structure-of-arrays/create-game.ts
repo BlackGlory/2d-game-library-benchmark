@@ -157,7 +157,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       const y = lerp(alpha, [previousY, currentY])
       const width = Size.arrays.width[entityId]
       const height = Size.arrays.height[entityId]
-      ctx.fillRect(x, y, width, height)
+      // ctx.fillRect(x, y, width, height)
     }
     ctx.restore()
 

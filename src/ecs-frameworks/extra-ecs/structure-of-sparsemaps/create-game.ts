@@ -172,7 +172,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
       const width = Size.arrays.width[indexOfSize]
       const height = Size.arrays.height[indexOfSize]
 
-      ctx.fillRect(x, y, width, height)
+      // ctx.fillRect(x, y, width, height)
     }
     ctx.restore()
 

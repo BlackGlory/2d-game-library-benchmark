@@ -15,22 +15,6 @@ import classNames from 'classnames'
 export function App() {
   const tabs = [
     {
-      tabName: 'ECS Framework: extra-ecs (StructureOfArrays)'
-    , tabPanel: <Game createGame={ECSFrameworkExtraECSStructureOfArrays.createGame} />
-    }
-  , {
-      tabName: 'ECS Framework: extra-ecs (StructureOfSparseMaps)'
-    , tabPanel: <Game createGame={ECSFrameworkExtraECSStructureOfSparseMaps.createGame} />
-    }
-  , {
-      tabName: 'ECS Framework: BitECS (buggy)'
-    , tabPanel: <Game createGame={ECSFrameworkBitECS.createGame} />
-    }
-  , {
-      tabName: 'ECS Framework: @thi.ng/ecs'
-    , tabPanel: <Game createGame={ECSFrameworkThingECS.createGame} />
-    }
-  , {
       tabName: 'Rendering Engine: Canvas2D (shape)'
     , tabPanel: <Game createGame={RenderingEngineCanvas2DShape.createGame} />
     }
@@ -53,6 +37,22 @@ export function App() {
   , {
       tabName: 'Physics Engine: Box2D'
     , tabPanel: <Game createGame={PhysicsEngineBox2D.createGame} />
+    }
+  , {
+      tabName: 'ECS Framework: extra-ecs (StructureOfArrays)'
+    , tabPanel: <Game createGame={ECSFrameworkExtraECSStructureOfArrays.createGame} />
+    }
+  , {
+      tabName: 'ECS Framework: extra-ecs (StructureOfSparseMaps)'
+    , tabPanel: <Game createGame={ECSFrameworkExtraECSStructureOfSparseMaps.createGame} />
+    }
+  , {
+      tabName: 'ECS Framework: BitECS (buggy)'
+    , tabPanel: <Game createGame={ECSFrameworkBitECS.createGame} />
+    }
+  , {
+      tabName: 'ECS Framework: @thi.ng/ecs'
+    , tabPanel: <Game createGame={ECSFrameworkThingECS.createGame} />
     }
   ]
 
