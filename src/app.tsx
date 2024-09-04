@@ -1,6 +1,5 @@
 import * as ECSFrameworkExtraECSStructureOfArrays from './ecs-frameworks/extra-ecs/structure-of-arrays'
 import * as ECSFrameworkExtraECSStructureOfSparseMaps from './ecs-frameworks/extra-ecs/structure-of-sparsemaps'
-import * as ECSFrameworkBitECS from './ecs-frameworks/bit-ecs'
 import * as ECSFrameworkThingECS from './ecs-frameworks/thing-ecs'
 import * as PhysicsEngineBox2D from './physics-engines/box2d'
 import * as PhysicsEngineRapier from './physics-engines/rapier'
@@ -45,10 +44,6 @@ export function App() {
   , {
       tabName: 'ECS Framework: extra-ecs (StructureOfSparseMaps)'
     , tabPanel: <Game createGame={ECSFrameworkExtraECSStructureOfSparseMaps.createGame} />
-    }
-  , {
-      tabName: 'ECS Framework: BitECS (buggy)'
-    , tabPanel: <Game createGame={ECSFrameworkBitECS.createGame} />
     }
   , {
       tabName: 'ECS Framework: @thi.ng/ecs'

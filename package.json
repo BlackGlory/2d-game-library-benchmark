@@ -27,7 +27,6 @@
     "@dimforge/rapier2d": "^0.13.1",
     "@headlessui/react": "^2.1.2",
     "@thi.ng/ecs": "^0.7.124",
-    "bitecs": "^0.3.40",
     "box2d-wasm": "^7.0.0",
     "classnames": "^2.5.1",
     "extra-defer": "^0.3.1",
