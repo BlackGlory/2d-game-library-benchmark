@@ -9,7 +9,7 @@ import items from '@src/assets/items.png'
 import { loadImage } from '@utils/load-image'
 import { Sampler } from '@utils/sampler'
 
-const MIN_GAME_FPS = 60
+const MIN_GAME_FPS = 30
 const PHYSICS_FPS = 50
 const SCREEN_WIDTH_PIXELS = 1920
 const SCREEN_HEIGHT_PIXELS = 1080
