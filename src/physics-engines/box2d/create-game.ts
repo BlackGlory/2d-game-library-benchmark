@@ -1,7 +1,7 @@
 import { GameLoop } from 'extra-game-loop'
 import { StructureOfArrays, float64, uint8 } from 'structure-of-arrays'
 import { World, Query, allOf } from 'extra-ecs'
-import { random, randomInt } from 'extra-rand'
+import { randomFloat, randomInt } from 'extra-rand'
 import { SyncDestructor } from 'extra-defer'
 import { go } from '@blackglory/prelude'
 import * as PIXI from 'pixi.js'
@@ -236,7 +236,7 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
     , x, y
     , width, height
     )
-    body.SetLinearVelocity(new Box2D.b2Vec2(random(-1, 1), random(0, 2)))
+    body.SetLinearVelocity(new Box2D.b2Vec2(randomFloat(-1, 1), randomFloat(0, 2)))
 
     stage.addChild(sprite)
     entityIdToSprite.set(entityId, sprite)

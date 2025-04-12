@@ -2,7 +2,7 @@ import { GameLoop } from 'extra-game-loop'
 import { StructureOfArrays, float64, uint8 } from 'structure-of-arrays'
 import { World, Query, allOf } from 'extra-ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
-import { random, randomInt, randomIntInclusive } from 'extra-rand'
+import { randomFloat, randomInt, randomIntInclusive } from 'extra-rand'
 import { SyncDestructor } from 'extra-defer'
 import * as PIXI from 'pixi.js'
 import { COLORS } from './colors'
@@ -217,10 +217,10 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
   }
 
   function addObject(): void {
-    const x = random(0, SCREEN_WIDTH_PIXELS)
-    const y = random(0, SCREEN_HEIGHT_PIXELS)
-    const vx = random(-0.01, 0.01)
-    const vy = random(-0.01, 0.01)
+    const x = randomFloat(0, SCREEN_WIDTH_PIXELS)
+    const y = randomFloat(0, SCREEN_HEIGHT_PIXELS)
+    const vx = randomFloat(-0.01, 0.01)
+    const vy = randomFloat(-0.01, 0.01)
     const width = randomIntInclusive(1, 100)
     const height = randomIntInclusive(1, 100)
     const colorIndex = randomInt(0, COLORS.length)

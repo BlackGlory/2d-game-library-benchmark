@@ -1,7 +1,7 @@
 import { GameLoop } from 'extra-game-loop'
 import { ECS, GroupTuple } from '@thi.ng/ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
-import { random, randomInt, randomIntInclusive } from 'extra-rand'
+import { randomFloat, randomInt, randomIntInclusive } from 'extra-rand'
 import { COLORS } from './colors'
 import { lerp } from 'extra-utils'
 import { Sampler } from '@utils/sampler'
@@ -175,22 +175,22 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     ctx.fillRect(0, 0, SCREEN_WIDTH_PIXELS, SCREEN_HEIGHT_PIXELS)
     ctx.restore()
 
-    ctx.save()
-    queryObject.forEach(entity => {
-      const color = entity.Style[StyleIndex.color]
-      ctx.fillStyle = COLORS[color]
-      const previousPosition = PreviousPosition.get(entity.id)!
-      const previousX = previousPosition[Vector.x]
-      const previousY = previousPosition[Vector.y]
-      const currentX = entity.Position[Vector.x]
-      const currentY = entity.Position[Vector.y]
-      const x = lerp(alpha, [previousX, currentX])
-      const y = lerp(alpha, [previousY, currentY])
-      const width = entity.Size[SideLength.width]
-      const height = entity.Size[SideLength.height]
-      // ctx.fillRect(x, y, width, height)
-    })
-    ctx.restore()
+    // ctx.save()
+    // queryObject.forEach(entity => {
+    //   const color = entity.Style[StyleIndex.color]
+    //   ctx.fillStyle = COLORS[color]
+    //   const previousPosition = PreviousPosition.get(entity.id)!
+    //   const previousX = previousPosition[Vector.x]
+    //   const previousY = previousPosition[Vector.y]
+    //   const currentX = entity.Position[Vector.x]
+    //   const currentY = entity.Position[Vector.y]
+    //   const x = lerp(alpha, [previousX, currentX])
+    //   const y = lerp(alpha, [previousY, currentY])
+    //   const width = entity.Size[SideLength.width]
+    //   const height = entity.Size[SideLength.height]
+    //   ctx.fillRect(x, y, width, height)
+    // })
+    // ctx.restore()
 
     {
       const text = `FPS: ${Math.floor(fpsSampler.get())}`
@@ -221,13 +221,13 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   }
 
   function addObject(): void {
-    const x = random(0, SCREEN_WIDTH_PIXELS)
-    const y = random(0, SCREEN_HEIGHT_PIXELS)
+    const x = randomFloat(0, SCREEN_WIDTH_PIXELS)
+    const y = randomFloat(0, SCREEN_HEIGHT_PIXELS)
 
     // @ts-ignore
     world.defEntity({
       Position: [x, y]
-    , Velocity: [random(-0.01, 0.01), random(-0.01, 0.01)]
+    , Velocity: [randomFloat(-0.01, 0.01), randomFloat(-0.01, 0.01)]
     , Size: [randomIntInclusive(1, 100), randomIntInclusive(1, 100)]
     , Style: [randomInt(0, COLORS.length)]
     , PreviousPosition: [x, y]

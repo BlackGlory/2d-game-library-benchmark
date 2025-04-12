@@ -2,7 +2,7 @@ import { GameLoop } from 'extra-game-loop'
 import { StructureOfArrays, float64, uint8 } from 'structure-of-arrays'
 import { World, Query, allOf } from 'extra-ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
-import { random, randomInt, randomIntInclusive } from 'extra-rand'
+import { randomFloat, randomInt, randomIntInclusive } from 'extra-rand'
 import { go } from '@blackglory/prelude'
 import { lerp } from 'extra-utils'
 import items from '@src/assets/items.png'
@@ -204,16 +204,16 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
   }
 
   function addObject(): void {
-    const x = random(0, SCREEN_WIDTH_PIXELS)
-    const y = random(0, SCREEN_HEIGHT_PIXELS)
+    const x = randomFloat(0, SCREEN_WIDTH_PIXELS)
+    const y = randomFloat(0, SCREEN_HEIGHT_PIXELS)
 
     const entityId = world.createEntityId()
     world.addComponents(
       entityId
     , [Position, { x, y }]
     , [Velocity, {
-        x: random(-0.01, 0.01)
-      , y: random(-0.01, 0.01)
+        x: randomFloat(-0.01, 0.01)
+      , y: randomFloat(-0.01, 0.01)
       }]
     , [Size, {
         width: randomIntInclusive(1, 100)

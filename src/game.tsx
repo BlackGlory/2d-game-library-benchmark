@@ -15,7 +15,7 @@ export function Game({ createGame }: IGameProps) {
   useEffectAsync(async () => {
     const canvas = canvasRef.current
     if (canvas) {
-      setGameLoop(await createGame(canvasRef.current))
+      setGameLoop(await createGame(canvas))
     }
   }, [createGame])
 
