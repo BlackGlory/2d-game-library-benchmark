@@ -1,5 +1,6 @@
 import { truncateArrayRight } from '@blackglory/structures'
-import { sum } from 'extra-utils'
+import { avg } from 'iterable-operator'
+import { isntEmptyArray } from 'extra-utils'
 
 export class Sampler {
   private records: number[] = []
@@ -11,7 +12,11 @@ export class Sampler {
     truncateArrayRight(this.records, this.size)
   }
 
-  get() {
-    return this.records.reduce(sum) / this.records.length
+  get(): number {
+    if (isntEmptyArray(this.records)) {
+      return avg(this.records)
+    } else {
+      return 0
+    }
   }
 }

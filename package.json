@@ -36,6 +36,7 @@
     "extra-rand": "^0.4.1",
     "extra-react-hooks": "^0.8.6",
     "extra-utils": "^5.19.0",
+    "iterable-operator": "^6.0.0",
     "pixi.js": "^8.9.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
