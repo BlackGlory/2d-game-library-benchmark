@@ -14,7 +14,7 @@ const SCREEN_HEIGHT_PIXELS = 1080
 
 export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   const fpsSampler = new Sampler(60)
-  const keyStateObserver = new KeyStateObserver(canvas)
+  const keyStateObserver = new KeyStateObserver([canvas])
 
   canvas.width = SCREEN_WIDTH_PIXELS
   canvas.height = SCREEN_HEIGHT_PIXELS

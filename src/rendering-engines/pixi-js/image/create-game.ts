@@ -19,7 +19,7 @@ const SCREEN_HEIGHT_PIXELS = 1080
 export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<number>> {
   const fpsSampler = new Sampler(60)
   const entityIdToSprite = new Map<number, PIXI.Sprite>()
-  const keyStateObserver = new KeyStateObserver(canvas)
+  const keyStateObserver = new KeyStateObserver([canvas])
 
   PIXI.AbstractRenderer.defaultOptions.resolution = window.devicePixelRatio
   PIXI.TextureSource.defaultOptions.scaleMode = 'nearest'

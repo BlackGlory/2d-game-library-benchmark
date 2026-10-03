@@ -16,7 +16,7 @@ const SCREEN_HEIGHT_PIXELS = 1080
 
 export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<number>> {
   const fpsSampler = new Sampler(60)
-  const keyStateObserver = new KeyStateObserver(canvas)
+  const keyStateObserver = new KeyStateObserver([canvas])
 
   const tiles = await go(async () => {
     const image = await loadImage(items)
