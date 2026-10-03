@@ -2057,6 +2057,11 @@ balanced-match@^1.0.0:
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
 
+bitecs@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/bitecs/-/bitecs-0.4.0.tgz#13efc4eaba85f25a1f6b2929953b2e5172f58032"
+  integrity sha512-ho6Zop/L79DRTnBAfakPpGPuX7y0+lAjX06CpaAW+5tnAc7BH3L3RlSrWAXAqwnQGDZ10GsoxaxyTTsddlun3g==
+
 box2d-wasm@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/box2d-wasm/-/box2d-wasm-7.0.0.tgz#a41ede3b067880593171b744805e858628c1aac7"

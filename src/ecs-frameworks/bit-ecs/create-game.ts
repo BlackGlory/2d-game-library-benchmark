@@ -1,10 +1,10 @@
 import { GameLoop } from 'extra-game-loop'
-import { ECS, GroupTuple } from '@thi.ng/ecs'
+import { createWorld, addEntity, query, addComponent, removeEntity } from 'bitecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
 import { randomFloat, randomInt, randomIntInclusive } from 'extra-rand'
 import { COLORS } from './colors'
-import { Sampler } from '@utils/sampler'
 import { lerp } from 'extra-utils'
+import { Sampler } from '@utils/sampler'
 
 const MIN_GAME_FPS = 30
 const PHYSICS_FPS = 50
@@ -12,20 +12,6 @@ const SCREEN_WIDTH_PIXELS = 1920
 const SCREEN_HEIGHT_PIXELS = 1080
 
 export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
-  enum Vector {
-    x
-  , y
-  }
-
-  enum SideLength {
-    width
-  , height
-  }
-
-  enum StyleIndex {
-    color
-  }
-
   const fpsSampler = new Sampler(60)
   const keyStateObserver = new KeyStateObserver([canvas])
 
@@ -33,49 +19,32 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   canvas.height = SCREEN_HEIGHT_PIXELS
   const ctx = canvas.getContext('2d')!
 
-  interface ComponentSpec {
-    Position: Float64Array
-    PreviousPosition: Float64Array
-    Style: Uint8Array
-    Size: Uint8Array
-    Velocity: Float64Array
-  }
-
-  const world = new ECS<ComponentSpec>({
-    capacity: 100000
+  const maxEntities = 50_0000
+  const world = createWorld({
+    components: {
+      PreviousPosition: {
+        x: new Float64Array(maxEntities)
+      , y: new Float64Array(maxEntities)
+      }
+    , Position: {
+        x: new Float64Array(maxEntities)
+      , y: new Float64Array(maxEntities)
+      }
+    , Style: {
+        color: new Uint8Array(maxEntities)
+      }
+    , Size: {
+        width: new Uint8Array(maxEntities)
+      , height: new Uint8Array(maxEntities)
+      }
+    , Velocity: {
+        x: new Float64Array(maxEntities)
+      , y: new Float64Array(maxEntities)
+      }
+    }
   })
 
-  const PreviousPosition = world.defComponent({
-    id: 'PreviousPosition'
-  , type: 'f64'
-  , size: 2
-  })!
-
-  const Position = world.defComponent({
-    id: 'Position'
-  , type: 'f64'
-  , size: 2
-  })!
-
-  const Style = world.defComponent({
-    id: 'Style'
-  , type: 'u8'
-  , size: 1
-  })!
-
-  const Size = world.defComponent({
-    id: 'Size'
-  , type: 'u8'
-  , size: 2
-  })!
-
-  const Velocity = world.defComponent({
-    id: 'Velocity'
-  , type: 'f64'
-  , size: 2
-  })!
-
-  const queryObject = world.defGroup([Position, Velocity, Size, Style])
+  const { PreviousPosition, Position, Style, Size, Velocity } = world.components
 
   let objects: number = 0
 
@@ -98,63 +67,64 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   return loop
 
   function physicsSystem(deltaTime: number): void {
-    queryObject.forEach(entity => {
-      updatePreviousPosition(entity)
-      entity.Position[Vector.x] += entity.Velocity[Vector.x] * deltaTime
-      entity.Position[Vector.y] += entity.Velocity[Vector.y] * deltaTime
-    })
+    for (const entityId of query(world, [PreviousPosition, Position, Velocity])) {
+      updatePreviousPosition(entityId)
+      Position.x[entityId] += Velocity.x[entityId] * deltaTime
+      Position.y[entityId] += Velocity.y[entityId] * deltaTime
+    }
   }
 
-  function updatePreviousPosition(entity: GroupTuple<ComponentSpec, 'Position'>): void {
-    const previousX = entity.Position[Vector.x]
-    const previousY = entity.Position[Vector.y]
-    PreviousPosition.set(entity.id, [previousX, previousY])
+  function updatePreviousPosition(entityId: number): void {
+    const previousX = Position.x[entityId]
+    const previousY = Position.y[entityId]
+    PreviousPosition.x[entityId] = previousX
+    PreviousPosition.y[entityId] = previousY
   }
 
   function directorSystem(deltaTime: number): void {
     const oldObjects = objects
-    queryObject.forEach(entity => {
+    for (const entityId of query(world, [PreviousPosition, Position, Size])) {
       if (
          keyStateObserver.getKeyState(Key.A) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Left) === KeyState.Down
       ) {
-        entity.Position[Vector.x] -= 1 * deltaTime
-        updatePreviousPosition(entity)
+        Position.x[entityId] -= 1 * deltaTime
+        updatePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.W) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Up) === KeyState.Down
       ) {
-        entity.Position[Vector.y] -= 1 * deltaTime
-        updatePreviousPosition(entity)
+        Position.y[entityId] -= 1 * deltaTime
+        updatePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.S) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Down) === KeyState.Down
       ) {
-        entity.Position[Vector.y] += 1 * deltaTime
-        updatePreviousPosition(entity)
+        Position.y[entityId] += 1 * deltaTime
+        updatePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.D) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Right) === KeyState.Down
       ) {
-        entity.Position[Vector.x] += 1 * deltaTime
-        updatePreviousPosition(entity)
+        Position.x[entityId] += 1 * deltaTime
+        updatePreviousPosition(entityId)
       }
-      const x = entity.Position[Vector.x]
-      const y = entity.Position[Vector.y]
-      const width = entity.Size[SideLength.width]
-      const height = entity.Size[SideLength.height]
+      const x = Position.x[entityId]
+      const y = Position.y[entityId]
+      const width = Size.width[entityId]
+      const height = Size.height[entityId]
       if (
         x > SCREEN_WIDTH_PIXELS ||
         y > SCREEN_HEIGHT_PIXELS ||
         (x + width) < 0 ||
         (y + height) < 0
       ) {
-        removeObject(entity.id)
+        removeObject(entityId)
       }
-    })
+    }
 
     const currentFPS = Math.floor(fpsSampler.get())
     if (currentFPS >= MIN_GAME_FPS) {
@@ -176,20 +146,26 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     ctx.restore()
 
     ctx.save()
-    queryObject.forEach(entity => {
-      const color = entity.Style[StyleIndex.color]
+    for (
+      const entityId of query(world, [
+        Style
+      , PreviousPosition
+      , Position
+      , Size
+      ])
+    ) {
+      const color = Style.color[entityId]
       ctx.fillStyle = COLORS[color]
-      const previousPosition = PreviousPosition.get(entity.id)!
-      const previousX = previousPosition[Vector.x]
-      const previousY = previousPosition[Vector.y]
-      const currentX = entity.Position[Vector.x]
-      const currentY = entity.Position[Vector.y]
+      const previousX = PreviousPosition.x[entityId]
+      const previousY = PreviousPosition.y[entityId]
+      const currentX = Position.x[entityId]
+      const currentY = Position.y[entityId]
       const x = lerp(alpha, [previousX, currentX])
       const y = lerp(alpha, [previousY, currentY])
-      const width = entity.Size[SideLength.width]
-      const height = entity.Size[SideLength.height]
+      const width = Size.width[entityId]
+      const height = Size.height[entityId]
       // ctx.fillRect(x, y, width, height)
-    })
+    }
     ctx.restore()
 
     {
@@ -224,20 +200,32 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     const x = randomFloat(0, SCREEN_WIDTH_PIXELS)
     const y = randomFloat(0, SCREEN_HEIGHT_PIXELS)
 
-    // @ts-ignore
-    world.defEntity({
-      Position: [x, y]
-    , Velocity: [randomFloat(-0.01, 0.01), randomFloat(-0.01, 0.01)]
-    , Size: [randomIntInclusive(1, 100), randomIntInclusive(1, 100)]
-    , Style: [randomInt(0, COLORS.length)]
-    , PreviousPosition: [x, y]
-    })
+    const entityId = addEntity(world)
+
+    addComponent(world, entityId, Position)
+    Position.x[entityId] = x
+    Position.y[entityId] = y
+    
+    addComponent(world, entityId, Velocity)
+    Velocity.x[entityId] = randomFloat(-0.01, 0.01)
+    Velocity.y[entityId] = randomFloat(-0.01, 0.01)
+
+    addComponent(world, entityId, Size)
+    Size.width[entityId] = randomIntInclusive(1, 100)
+    Size.height[entityId] = randomIntInclusive(1, 100)
+
+    addComponent(world, entityId, Style)
+    Style.color[entityId] = randomInt(0, COLORS.length)
+
+    addComponent(world, entityId, PreviousPosition)
+    PreviousPosition.x[entityId] = x
+    PreviousPosition.y[entityId] = y
 
     objects++
   }
 
   function removeObject(entityId: number): void {
-    world.deleteID(entityId)
+    removeEntity(world, entityId)
 
     objects--
   }
