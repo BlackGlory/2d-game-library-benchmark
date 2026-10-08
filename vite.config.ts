@@ -12,10 +12,4 @@ export default defineConfig({
 , resolve: {
     tsconfigPaths: true
   }
-, optimizeDeps: {
-    exclude: [
-      'box2d-wasm'
-    , '@dimforge/rapier2d'
-    ]
-  }
 })
