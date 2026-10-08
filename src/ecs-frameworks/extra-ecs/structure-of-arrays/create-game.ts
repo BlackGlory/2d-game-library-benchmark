@@ -29,7 +29,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   }
 
   const maxEntities = 50_0000
-  const world = new World()
+  const world = new World<ComponentId>()
 
   const PreviousPositionSoA = new StructureOfArrays({
     structure: {
