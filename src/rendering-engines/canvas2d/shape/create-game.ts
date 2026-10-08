@@ -28,7 +28,7 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   , Velocity
   }
 
-  const world = new World()
+  const world = new World<ComponentId>()
 
   const PreviousPositionSoA = new StructureOfResizableArrays({
     structure: {
