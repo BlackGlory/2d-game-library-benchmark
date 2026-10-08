@@ -78,7 +78,7 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
   , Size
   }
 
-  const world = new World<ComponentId>()
+  const world = new World()
 
   const PreviousPositionSoA = new StructureOfResizableArrays({
     structure: {
