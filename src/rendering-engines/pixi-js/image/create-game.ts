@@ -1,6 +1,6 @@
 import { GameLoop } from 'extra-game-loop'
-import { StructureOfArrays, float64, uint8 } from 'structure-of-arrays'
-import { World, Query, allOf } from 'extra-ecs'
+import { StructureOfResizableArrays } from 'structure-of-arrays'
+import { RecyclableQuery as Query, RecyclableWorld as World, allOf } from 'extra-ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
 import { randomFloat, randomInt, randomIntInclusive } from 'extra-rand'
 import { SyncDestructor } from 'extra-defer'
@@ -52,26 +52,56 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
   })
   const stage = new PIXI.Container()
 
+  enum ComponentId {
+    PreviousPosition
+  , Position
+  , Size
+  , Velocity
+  }
+
   const world = new World()
 
-  const PreviousPosition = new StructureOfArrays({
-    x: float64
-  , y: float64
+  const PreviousPositionSoA = new StructureOfResizableArrays({
+    structure: {
+      x: Float64Array
+    , y: Float64Array
+    }
+  , maxCapacity: 100000
   })
-  const Position = new StructureOfArrays({
-    x: float64
-  , y: float64
-  })
-  const Size = new StructureOfArrays({
-    width: uint8
-  , height: uint8
-  })
-  const Velocity = new StructureOfArrays({
-    x: float64
-  , y: float64
-  })
+  const PreviousPosition = PreviousPositionSoA.arrays
 
-  const queryObject = new Query(world, allOf(Position, Velocity, Size))
+  const PositionSoA = new StructureOfResizableArrays({
+    structure: {
+      x: Float64Array
+    , y: Float64Array
+    }
+  , maxCapacity: 100000
+  })
+  const Position = PositionSoA.arrays
+
+  const SizeSoA = new StructureOfResizableArrays({
+    structure: {
+      width: Uint8Array
+    , height: Uint8Array
+    }
+  , maxCapacity: 100000
+  })
+  const Size = SizeSoA.arrays
+
+  const VelocitySoA = new StructureOfResizableArrays({
+    structure: {
+      x: Float64Array
+    , y: Float64Array
+    }
+  , maxCapacity: 100000
+  })
+  const Velocity = VelocitySoA.arrays
+
+  const queryObject = new Query(world, allOf(
+    ComponentId.Position
+  , ComponentId.Velocity
+  , ComponentId.Size
+  ))
 
   let objects: number = 0
 
@@ -95,56 +125,56 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
   return loop
 
   function physicsSystem(deltaTime: number): void {
-    for (const entityId of queryObject.findAllEntityIds()) {
+    for (const entityId of queryObject.findAllEntityIdsAscending()) {
       updatePreviousPosition(entityId)
-      Position.arrays.x[entityId] += Velocity.arrays.x[entityId] * deltaTime
-      Position.arrays.y[entityId] += Velocity.arrays.y[entityId] * deltaTime
+      Position.x[entityId] += Velocity.x[entityId] * deltaTime
+      Position.y[entityId] += Velocity.y[entityId] * deltaTime
     }
   }
 
   function updatePreviousPosition(entityId: number): void {
-    const previousX = Position.arrays.x[entityId]
-    const previousY = Position.arrays.y[entityId]
-    PreviousPosition.arrays.x[entityId] = previousX
-    PreviousPosition.arrays.y[entityId] = previousY
+    const previousX = Position.x[entityId]
+    const previousY = Position.y[entityId]
+    PreviousPosition.x[entityId] = previousX
+    PreviousPosition.y[entityId] = previousY
   }
 
   function directorSystem(deltaTime: number): void {
     const oldObjects = objects
-    for (const entityId of queryObject.findAllEntityIds()) {
+    for (const entityId of queryObject.findAllEntityIdsAscending()) {
       if (
          keyStateObserver.getKeyState(Key.A) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Left) === KeyState.Down
       ) {
-        Position.arrays.x[entityId] -= 1 * deltaTime
+        Position.x[entityId] -= 1 * deltaTime
         updatePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.W) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Up) === KeyState.Down
       ) {
-        Position.arrays.y[entityId] -= 1 * deltaTime
+        Position.y[entityId] -= 1 * deltaTime
         updatePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.S) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Down) === KeyState.Down
       ) {
-        Position.arrays.y[entityId] += 1 * deltaTime
+        Position.y[entityId] += 1 * deltaTime
         updatePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.D) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Right) === KeyState.Down
       ) {
-        Position.arrays.x[entityId] += 1 * deltaTime
+        Position.x[entityId] += 1 * deltaTime
         updatePreviousPosition(entityId)
       }
 
-      const x = Position.arrays.x[entityId]
-      const y = Position.arrays.y[entityId]
-      const width = Size.arrays.width[entityId]
-      const height = Size.arrays.height[entityId]
+      const x = Position.x[entityId]
+      const y = Position.y[entityId]
+      const width = Size.width[entityId]
+      const height = Size.height[entityId]
       if (
         x > SCREEN_WIDTH_PIXELS ||
         y > SCREEN_HEIGHT_PIXELS ||
@@ -169,11 +199,11 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
   }
 
   function stageUpdatingSystem(alpha: number): void {
-    for (const entityId of queryObject.findAllEntityIds()) {
-      const previousX = PreviousPosition.arrays.x[entityId]
-      const previousY = PreviousPosition.arrays.y[entityId]
-      const currentX = Position.arrays.x[entityId]
-      const currentY = Position.arrays.y[entityId]
+    for (const entityId of queryObject.findAllEntityIdsAscending()) {
+      const previousX = PreviousPosition.x[entityId]
+      const previousY = PreviousPosition.y[entityId]
+      const currentX = Position.x[entityId]
+      const currentY = Position.y[entityId]
 
       const rect = entityIdToSprite.get(entityId)!
       rect.position.set(
@@ -248,13 +278,28 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
     const tile = randomInt(0, tiles.length)
 
     const entityId = world.createEntityId()
-    world.addComponents(
-      entityId
-    , [Position, { x, y }]
-    , [Velocity, { x: vx, y: vy }]
-    , [Size, { width, height }]
-    , [PreviousPosition, { x, y }]
-    )
+    world.addComponentIds(entityId, [
+      ComponentId.Position
+    , ComponentId.Velocity
+    , ComponentId.Size
+    , ComponentId.PreviousPosition
+    ])
+
+    PositionSoA.ensure(entityId)
+    Position.x[entityId] = x
+    Position.y[entityId] = y
+
+    VelocitySoA.ensure(entityId)
+    Velocity.x[entityId] = vx
+    Velocity.y[entityId] = vy
+
+    SizeSoA.ensure(entityId)
+    Size.width[entityId] = width
+    Size.height[entityId] = height
+
+    PreviousPositionSoA.ensure(entityId)
+    PreviousPosition.x[entityId] = x
+    PreviousPosition.y[entityId] = y
 
     const sprite = new PIXI.Sprite({
       texture: tiles[tile]

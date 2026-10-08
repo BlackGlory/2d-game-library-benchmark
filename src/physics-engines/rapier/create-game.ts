@@ -1,6 +1,6 @@
 import { GameLoop } from 'extra-game-loop'
-import { StructureOfArrays, float64, uint8 } from 'structure-of-arrays'
-import { World, Query, allOf } from 'extra-ecs'
+import { StructureOfResizableArrays } from 'structure-of-arrays'
+import { RecyclableQuery as Query, RecyclableWorld as World, allOf } from 'extra-ecs'
 import { randomFloat, randomInt } from 'extra-rand'
 import { SyncDestructor } from 'extra-defer'
 import { go } from '@blackglory/prelude'
@@ -75,22 +75,42 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
     )
   }
 
+  enum ComponentId {
+    PreviousPosition
+  , Position
+  , Size
+  }
+
   const world = new World()
 
-  const PreviousPosition = new StructureOfArrays({
-    x: float64
-  , y: float64
+  const PreviousPositionSoA = new StructureOfResizableArrays({
+    structure: {
+      x: Float64Array
+    , y: Float64Array
+    }
+  , maxCapacity: 100000
   })
-  const Position = new StructureOfArrays({
-    x: float64
-  , y: float64
-  })
-  const Size = new StructureOfArrays({
-    width: uint8
-  , height: uint8
-  })
+  const PreviousPosition = PreviousPositionSoA.arrays
 
-  const queryObject = new Query(world, allOf(Position, Size))
+  const PositionSoA = new StructureOfResizableArrays({
+    structure: {
+      x: Float64Array
+    , y: Float64Array
+    }
+  , maxCapacity: 100000
+  })
+  const Position = PositionSoA.arrays
+
+  const SizeSoA = new StructureOfResizableArrays({
+    structure: {
+      width: Uint8Array
+    , height: Uint8Array
+    }
+  , maxCapacity: 100000
+  })
+  const Size = SizeSoA.arrays
+
+  const queryObject = new Query(world, allOf(ComponentId.Position, ComponentId.Size))
 
   let objects: number = 0
   const boxWidth = 1
@@ -122,30 +142,30 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
   function physicsSystem(): void {
     physicsWorld.step()
 
-    for (const entityId of queryObject.findAllEntityIds()) {
+    for (const entityId of queryObject.findAllEntityIdsAscending()) {
       updatePreviousPosition(entityId)
-      const width = Size.arrays.width[entityId]
-      const height = Size.arrays.height[entityId]
+      const width = Size.width[entityId]
+      const height = Size.height[entityId]
       const rigidBody = entityIdToRigidBody.get(entityId)!
       const { x, y } = rigidBody.translation()
-      Position.arrays.x[entityId] = normalizeCuboidPoint(x, width)
-      Position.arrays.y[entityId] = normalizeCuboidPoint(y, height)
+      Position.x[entityId] = normalizeCuboidPoint(x, width)
+      Position.y[entityId] = normalizeCuboidPoint(y, height)
     }
   }
 
   function updatePreviousPosition(entityId: number): void {
-    const previousX = Position.arrays.x[entityId]
-    const previousY = Position.arrays.y[entityId]
-    PreviousPosition.arrays.x[entityId] = previousX
-    PreviousPosition.arrays.y[entityId] = previousY
+    const previousX = Position.x[entityId]
+    const previousY = Position.y[entityId]
+    PreviousPosition.x[entityId] = previousX
+    PreviousPosition.y[entityId] = previousY
   }
 
   function stageUpdatingSystem(alpha: number): void {
-    for (const entityId of queryObject.findAllEntityIds()) {
-      const previousX = unitConverter.meterToPixel(PreviousPosition.arrays.x[entityId])
-      const previousY = unitConverter.meterToPixel(PreviousPosition.arrays.y[entityId])
-      const currentX = unitConverter.meterToPixel(Position.arrays.x[entityId])
-      const currentY = unitConverter.meterToPixel(Position.arrays.y[entityId])
+    for (const entityId of queryObject.findAllEntityIdsAscending()) {
+      const previousX = unitConverter.meterToPixel(PreviousPosition.x[entityId])
+      const previousY = unitConverter.meterToPixel(PreviousPosition.y[entityId])
+      const currentX = unitConverter.meterToPixel(Position.x[entityId])
+      const currentY = unitConverter.meterToPixel(Position.y[entityId])
 
       const rect = entityIdToSprite.get(entityId)!
       rect.position.set(
@@ -214,12 +234,23 @@ export async function createGame(canvas: HTMLCanvasElement): Promise<GameLoop<nu
     const colorIndex = randomInt(0, COLORS.length)
 
     const entityId = world.createEntityId()
-    world.addComponents(
-      entityId
-    , [Position, { x, y }]
-    , [Size, { width, height }]
-    , [PreviousPosition, { x, y }]
-    )
+    world.addComponentIds(entityId, [
+      ComponentId.Position
+    , ComponentId.Size
+    , ComponentId.PreviousPosition
+    ])
+
+    PositionSoA.ensure(entityId)
+    Position.x[entityId] = x
+    Position.y[entityId] = y
+
+    SizeSoA.ensure(entityId)
+    Size.width[entityId] = width
+    Size.height[entityId] = height
+
+    PreviousPositionSoA.ensure(entityId)
+    PreviousPosition.x[entityId] = x
+    PreviousPosition.y[entityId] = y
 
     const sprite = new PIXI.Sprite({
       texture: PIXI.Texture.WHITE

@@ -1,6 +1,6 @@
 import { GameLoop } from 'extra-game-loop'
-import { StructureOfSparseMaps, float64, uint8 } from 'structure-of-arrays'
-import { World, Query, allOf } from 'extra-ecs'
+import { StructureOfResizableSparseMaps } from 'structure-of-arrays'
+import { NonRecyclableQuery as Query, NonRecyclableWorld as World, allOf } from 'extra-ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
 import { randomFloat, randomInt, randomIntInclusive } from 'extra-rand'
 import { COLORS } from './colors'
@@ -20,29 +20,72 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   canvas.height = SCREEN_HEIGHT_PIXELS
   const ctx = canvas.getContext('2d')!
 
+  enum ComponentId {
+    PreviousPosition
+  , Position
+  , Style
+  , Size
+  , Velocity
+  }
+
+  const maxEntities = 50_0000
   const world = new World()
 
-  const PreviousPosition = new StructureOfSparseMaps({
-    x: float64
-  , y: float64
+  const PreviousPositionSoSM = new StructureOfResizableSparseMaps({
+    structure: {
+      x: Float64Array
+    , y: Float64Array
+    }
+  , keys: Uint32Array
+  , maxCapacity: maxEntities
   })
-  const Position = new StructureOfSparseMaps({
-    x: float64
-  , y: float64
-  })
-  const Style = new StructureOfSparseMaps({
-    color: uint8
-  })
-  const Size = new StructureOfSparseMaps({
-    width: uint8
-  , height: uint8
-  })
-  const Velocity = new StructureOfSparseMaps({
-    x: float64
-  , y: float64
-  })
+  const PreviousPosition = PreviousPositionSoSM.arrays
 
-  const queryObject = new Query(world, allOf(Position, Velocity, Size, Style))
+  const PositionSoSM = new StructureOfResizableSparseMaps({
+    structure: {
+      x: Float64Array
+    , y: Float64Array
+    }
+  , keys: Uint32Array
+  , maxCapacity: maxEntities
+  })
+  const Position = PositionSoSM.arrays
+
+  const StyleSoSM = new StructureOfResizableSparseMaps({
+    structure: {
+      color: Uint8Array
+    }
+  , keys: Uint32Array
+  , maxCapacity: maxEntities
+  })
+  const Style = StyleSoSM.arrays
+
+  const SizeSoSM = new StructureOfResizableSparseMaps({
+    structure: {
+      width: Uint8Array
+    , height: Uint8Array
+    }
+  , keys: Uint32Array
+  , maxCapacity: maxEntities
+  })
+  const Size = SizeSoSM.arrays
+
+  const VelocitySoSM = new StructureOfResizableSparseMaps({
+    structure: {
+      x: Float64Array
+    , y: Float64Array
+    }
+  , keys: Uint32Array
+  , maxCapacity: maxEntities
+  })
+  const Velocity = VelocitySoSM.arrays
+
+  const queryObject = new Query(world, allOf(
+    ComponentId.Position
+  , ComponentId.Velocity
+  , ComponentId.Size
+  , ComponentId.Style
+  ))
 
   let objects: number = 0
 
@@ -67,60 +110,60 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   function physicsSystem(deltaTime: number): void {
     for (const entityId of queryObject.findAllEntityIds()) {
       updatePreviousPosition(entityId)
-      const index = Position.getInternalIndex(entityId)
-      Position.arrays.x[index] += Velocity.arrays.x[index] * deltaTime
-      Position.arrays.y[index] += Velocity.arrays.y[index] * deltaTime
+      const index = PositionSoSM.getIndexByKey(entityId)!
+      Position.x[index] += Velocity.x[index] * deltaTime
+      Position.y[index] += Velocity.y[index] * deltaTime
     }
   }
 
   function updatePreviousPosition(entityId: number): void {
-    const index = Position.getInternalIndex(entityId)
-    const previousX = Position.arrays.x[index]
-    const previousY = Position.arrays.y[index]
-    PreviousPosition.upsert(entityId, {
-      x: previousX
-    , y: previousY
-    })
+    const positionIndex = PositionSoSM.getIndexByKey(entityId)!
+    const previousX = Position.x[positionIndex]
+    const previousY = Position.y[positionIndex]
+
+    const previousPositionIndex = PreviousPositionSoSM.getIndexByKey(entityId)!
+    PreviousPosition.x[previousPositionIndex] = previousX
+    PreviousPosition.y[previousPositionIndex] = previousY
   }
 
   function directorSystem(deltaTime: number): void {
     const oldObjects = objects
     for (const entityId of queryObject.findAllEntityIds()) {
-      const indexOfPosition = Position.getInternalIndex(entityId)
+      const indexOfPosition = PositionSoSM.getIndexByKey(entityId)!
       if (
          keyStateObserver.getKeyState(Key.A) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Left) === KeyState.Down
       ) {
-        Position.arrays.x[indexOfPosition] -= 1 * deltaTime
+        Position.x[indexOfPosition] -= 1 * deltaTime
         updatePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.W) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Up) === KeyState.Down
       ) {
-        Position.arrays.y[indexOfPosition] -= 1 * deltaTime
+        Position.y[indexOfPosition] -= 1 * deltaTime
         updatePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.S) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Down) === KeyState.Down
       ) {
-        Position.arrays.y[indexOfPosition] += 1 * deltaTime
+        Position.y[indexOfPosition] += 1 * deltaTime
         updatePreviousPosition(entityId)
       }
       if (
          keyStateObserver.getKeyState(Key.D) === KeyState.Down ||
          keyStateObserver.getKeyState(Key.Right) === KeyState.Down
       ) {
-        Position.arrays.x[indexOfPosition] += 1 * deltaTime
+        Position.x[indexOfPosition] += 1 * deltaTime
         updatePreviousPosition(entityId)
       }
-      const x = Position.arrays.x[indexOfPosition]
-      const y = Position.arrays.y[indexOfPosition]
+      const x = Position.x[indexOfPosition]
+      const y = Position.y[indexOfPosition]
 
-      const indexOfSize = Size.getInternalIndex(entityId)
-      const width = Size.arrays.width[indexOfSize]
-      const height = Size.arrays.height[indexOfSize]
+      const indexOfSize = SizeSoSM.getIndexByKey(entityId)!
+      const width = Size.width[indexOfSize]
+      const height = Size.height[indexOfSize]
 
       if (
         x > SCREEN_WIDTH_PIXELS ||
@@ -153,24 +196,24 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
 
     ctx.save()
     for (const entityId of queryObject.findAllEntityIds()) {
-      const indexOfStyle = Style.getInternalIndex(entityId)
-      const color = Style.arrays.color[indexOfStyle]
+      const indexOfStyle = StyleSoSM.getIndexByKey(entityId)!
+      const color = Style.color[indexOfStyle]
       ctx.fillStyle = COLORS[color]
 
-      const indexOfPreviousPosition = PreviousPosition.getInternalIndex(entityId)
-      const previousX = PreviousPosition.arrays.x[indexOfPreviousPosition]
-      const previousY = PreviousPosition.arrays.y[indexOfPreviousPosition]
+      const indexOfPreviousPosition = PreviousPositionSoSM.getIndexByKey(entityId)!
+      const previousX = PreviousPosition.x[indexOfPreviousPosition]
+      const previousY = PreviousPosition.y[indexOfPreviousPosition]
 
-      const indexOfPosition = Position.getInternalIndex(entityId)
-      const currentX = Position.arrays.x[indexOfPosition]
-      const currentY = Position.arrays.y[indexOfPosition]
+      const indexOfPosition = PositionSoSM.getIndexByKey(entityId)!
+      const currentX = Position.x[indexOfPosition]
+      const currentY = Position.y[indexOfPosition]
 
       const x = lerp(alpha, [previousX, currentX])
       const y = lerp(alpha, [previousY, currentY])
 
-      const indexOfSize = Size.getInternalIndex(entityId)
-      const width = Size.arrays.width[indexOfSize]
-      const height = Size.arrays.height[indexOfSize]
+      const indexOfSize = SizeSoSM.getIndexByKey(entityId)!
+      const width = Size.width[indexOfSize]
+      const height = Size.height[indexOfSize]
 
       // ctx.fillRect(x, y, width, height)
     }
@@ -209,28 +252,43 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
     const y = randomFloat(0, SCREEN_HEIGHT_PIXELS)
 
     const entityId = world.createEntityId()
-    world.addComponents(
-      entityId
-    , [Position, { x, y }]
-    , [Velocity, {
-        x: randomFloat(-0.01, 0.01)
-      , y: randomFloat(-0.01, 0.01)
-      }]
-    , [Size, {
-        width: randomIntInclusive(1, 100)
-      , height: randomIntInclusive(1, 100)
-      }]
-    , [Style, {
-        color: randomInt(0, COLORS.length)
-      }]
-    , [PreviousPosition, { x, y }]
-    )
+    world.addComponentIds(entityId, [
+      ComponentId.Position
+    , ComponentId.Velocity
+    , ComponentId.Size
+    , ComponentId.Style
+    , ComponentId.PreviousPosition
+    ])
+
+    PositionSoSM.register(entityId)
+    Position.x[entityId] = x
+    Position.y[entityId] = y
+
+    VelocitySoSM.register(entityId)
+    Velocity.x[entityId] = randomFloat(-0.01, 0.01)
+    Velocity.y[entityId] = randomFloat(-0.01, 0.01)
+
+    SizeSoSM.register(entityId)
+    Size.width[entityId] = randomIntInclusive(1, 100)
+    Size.height[entityId] = randomIntInclusive(1, 100)
+
+    StyleSoSM.register(entityId)
+    Style.color[entityId] = randomInt(0, COLORS.length)
+
+    PreviousPositionSoSM.register(entityId)
+    PreviousPosition.x[entityId] = x
+    PreviousPosition.y[entityId] = y
 
     objects++
   }
 
   function removeObject(entityId: number): void {
     world.removeEntityId(entityId)
+
+    PositionSoSM.unregister(entityId)
+    VelocitySoSM.unregister(entityId)
+    SizeSoSM.unregister(entityId)
+    PreviousPositionSoSM.unregister(entityId)
 
     objects--
   }
