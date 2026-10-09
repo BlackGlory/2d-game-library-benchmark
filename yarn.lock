@@ -2023,6 +2023,11 @@ arrify@^1.0.1:
   resolved "https://registry.yarnpkg.com/arrify/-/arrify-1.0.1.tgz#898508da2226f380df904728456849c1501a4b0d"
   integrity sha512-3CYzex9M9FGQjCGMGyi6/31c8GJbgb0qGyrx5HWxPd0aCwh4cB2YjMb2Xf9UuoogrMrlO9cTqnB5rI5GHZTcUA==
 
+assert-never@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/assert-never/-/assert-never-1.4.0.tgz#b0d4988628c87f35eb94716cc54422a63927e175"
+  integrity sha512-5oJg84os6NMQNl27T9LnZkvvqzvAnHu03ShCnoj6bsJwS7L8AO4lf+C/XjK/nvzEqQB744moC6V128RucQd1jA==
+
 assertion-error@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/assertion-error/-/assertion-error-2.0.1.tgz#f641a196b335690b1070bf00b6e7593fec190bf7"
@@ -3296,14 +3301,14 @@ extra-defer@^0.3.1:
     extra-generator "^0.5.9"
     extra-promise "^6.2.0"
 
-extra-ecs@^0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/extra-ecs/-/extra-ecs-0.8.0.tgz#9d41f95f5fe79736f7290e3a18943ca4b46b943e"
-  integrity sha512-q/SrupdQvKPUZ7QVnUtlqbfnvVHsYkPyPgKLbCxKQ/ojIB1A5bSbPxoNJlm1GfEPZiUNeKoAcunWFu8S0M+tPQ==
+extra-ecs@^0.8.1:
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/extra-ecs/-/extra-ecs-0.8.1.tgz#d015a361a308acce8fcd5cf3646db759a927b91a"
+  integrity sha512-DHht+doyFBdgU72R3a4UEzDQwYqQniA5Yvi0qEJxCBzqopljuEzLTB44kVt+ig2r96hCmIbda+2b4uTgrmSguQ==
   dependencies:
     "@blackglory/prelude" "^0.5.0"
     "@blackglory/structures" "^0.15.4"
-    iterable-operator "^6.0.0"
+    assert-never "^1.4.0"
 
 extra-fsm@^0.1.0, extra-fsm@^0.1.1:
   version "0.1.1"
@@ -6340,10 +6345,10 @@ strip-json-comments@^3.1.1:
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-3.1.1.tgz#31f1281b3832630434831c310c01cccda8cbe006"
   integrity sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==
 
-structure-of-arrays@^0.10.1:
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/structure-of-arrays/-/structure-of-arrays-0.10.1.tgz#3781f626e2597ff57f9ffdbf6d41e7612d0a473e"
-  integrity sha512-9DGa11u48T8H3WTkaUKGTh4O5mIQ/Cl53zsCJOzYfiTfvj16/OzFf3gMqQjLONASWUqBaY/pbrW8IKgVwS+/KQ==
+structure-of-arrays@^0.10.2:
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/structure-of-arrays/-/structure-of-arrays-0.10.2.tgz#501d2d2f862b8ee9ce4b1ff11e4ce34db8397279"
+  integrity sha512-Htu4CWeDCY4yLYtLCH4jAYl4ur803+6NsFxxA8f91zRGyh4LqcO/Avm40boTehlFwGN27n1WKF/lUE+mQoyYYg==
   dependencies:
     "@blackglory/prelude" "^0.5.0"
     "@blackglory/structures" "^0.15.3"

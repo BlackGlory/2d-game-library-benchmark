@@ -1,5 +1,5 @@
 import { GameLoop } from 'extra-game-loop'
-import { StructureOfResizableSparseMaps } from 'structure-of-arrays'
+import { StructureOfSparseMaps } from 'structure-of-arrays'
 import { NonRecyclableQuery as Query, NonRecyclableWorld as World, allOf } from 'extra-ecs'
 import { KeyStateObserver, Key, KeyState } from 'extra-key-state'
 import { randomFloat, randomInt, randomIntInclusive } from 'extra-rand'
@@ -31,52 +31,52 @@ export function createGame(canvas: HTMLCanvasElement): GameLoop<number> {
   const maxEntities = 50_0000
   const world = new World<ComponentId>()
 
-  const PreviousPositionSoSM = new StructureOfResizableSparseMaps({
+  const PreviousPositionSoSM = new StructureOfSparseMaps({
     structure: {
       x: Float64Array
     , y: Float64Array
     }
   , keys: Uint32Array
-  , maxCapacity: maxEntities
+  , capacity: maxEntities
   })
   const PreviousPosition = PreviousPositionSoSM.arrays
 
-  const PositionSoSM = new StructureOfResizableSparseMaps({
+  const PositionSoSM = new StructureOfSparseMaps({
     structure: {
       x: Float64Array
     , y: Float64Array
     }
   , keys: Uint32Array
-  , maxCapacity: maxEntities
+  , capacity: maxEntities
   })
   const Position = PositionSoSM.arrays
 
-  const StyleSoSM = new StructureOfResizableSparseMaps({
+  const StyleSoSM = new StructureOfSparseMaps({
     structure: {
       color: Uint8Array
     }
   , keys: Uint32Array
-  , maxCapacity: maxEntities
+  , capacity: maxEntities
   })
   const Style = StyleSoSM.arrays
 
-  const SizeSoSM = new StructureOfResizableSparseMaps({
+  const SizeSoSM = new StructureOfSparseMaps({
     structure: {
       width: Uint8Array
     , height: Uint8Array
     }
   , keys: Uint32Array
-  , maxCapacity: maxEntities
+  , capacity: maxEntities
   })
   const Size = SizeSoSM.arrays
 
-  const VelocitySoSM = new StructureOfResizableSparseMaps({
+  const VelocitySoSM = new StructureOfSparseMaps({
     structure: {
       x: Float64Array
     , y: Float64Array
     }
   , keys: Uint32Array
-  , maxCapacity: maxEntities
+  , capacity: maxEntities
   })
   const Velocity = VelocitySoSM.arrays
 

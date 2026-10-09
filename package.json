@@ -8,7 +8,7 @@
     "test:watch": "vitest",
     "clean": "rimraf dist",
     "coverage": "vitest run --coverage",
-    "dev": "vite",
+    "dev": "vite --force",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "release": "standard-version",
@@ -31,7 +31,7 @@
     "box2d-wasm": "^7.0.0",
     "classnames": "^2.5.1",
     "extra-defer": "^0.3.1",
-    "extra-ecs": "^0.8.0",
+    "extra-ecs": "^0.8.1",
     "extra-game-loop": "^0.3.9",
     "extra-key-state": "^0.2.0",
     "extra-rand": "^0.5.1",
@@ -42,7 +42,7 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "screenfull": "^6.0.2",
-    "structure-of-arrays": "^0.10.1"
+    "structure-of-arrays": "^0.10.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.0",
