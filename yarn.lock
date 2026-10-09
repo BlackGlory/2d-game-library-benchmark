@@ -3301,10 +3301,10 @@ extra-defer@^0.3.1:
     extra-generator "^0.5.9"
     extra-promise "^6.2.0"
 
-extra-ecs@^0.8.1:
-  version "0.8.1"
-  resolved "https://registry.yarnpkg.com/extra-ecs/-/extra-ecs-0.8.1.tgz#d015a361a308acce8fcd5cf3646db759a927b91a"
-  integrity sha512-DHht+doyFBdgU72R3a4UEzDQwYqQniA5Yvi0qEJxCBzqopljuEzLTB44kVt+ig2r96hCmIbda+2b4uTgrmSguQ==
+extra-ecs@^0.8.2:
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/extra-ecs/-/extra-ecs-0.8.2.tgz#b96bb08fd26968d74b9866d2085d21c7621efc1a"
+  integrity sha512-rr69gihDtP3LWwoumZ6ycUZVm5pGk8CA0mdApY58M5KArhhjQtI6UfYNWdEkloennOA4oGfkzPFIg5VkAClpeA==
   dependencies:
     "@blackglory/prelude" "^0.5.0"
     "@blackglory/structures" "^0.15.4"
